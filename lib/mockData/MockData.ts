@@ -1,0 +1,74 @@
+import type { MeetingData } from "../types/MeetingData";
+
+export const mockMeetingData: MeetingData[] = [
+  {
+    id: 1,
+    title: "월간 독서모임 — 4월의 책",
+    description:
+      "이번 달 책은 '우리가 빛의 속도로 갈 수 없다면', 인상 깊은 구절 한두 개씩 가져오세요.",
+    category: "독서",
+    location: "홍대 어쩌면책방",
+    date: "2026-05-24",
+    time: "19:30",
+    price: "무료",
+    groupName: "책읽는밤",
+    groupIcon: "📖",
+    image:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=200&fit=crop",
+    participants: 6,
+    maxParticipants: 10,
+    isFull: false,
+  },
+  {
+    id: 2,
+    title: "북한산 백운대 새벽 등반",
+    description:
+      "동트는 백운대 정상에서 일출 보고 내려옵니다. 가볍게 걷는 정도가 아니라 약 5시간 코스예요.",
+    category: "등산",
+    location: "북한산 우이동 분소",
+    date: "2026-05-25",
+    time: "05:00",
+    price: "무료",
+    groupName: "산벗모임",
+    groupIcon: "🏔️",
+    image:
+      "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=300&h=200&fit=crop",
+    participants: 10,
+    maxParticipants: 20,
+    isFull: false,
+  },
+  {
+    id: 3,
+    title: "청계산 크루 모임",
+    description: "청계산 크루 모임은 청계산 크루 모임입니다.",
+    category: "등산",
+    location: "청계산 크루 모임",
+    date: "2026-05-25",
+    time: "05:00",
+    price: "무료",
+    groupName: "청계산 크루",
+    groupIcon: "🏔️",
+    image:
+      "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=300&h=200&fit=crop",
+    participants: 10,
+    maxParticipants: 20,
+    isFull: false,
+  },
+  {
+    id: 4,
+    title: "관악산 등산 모임",
+    description: "관악산 등산 모임은 관악산 등산 모임입니다.",
+    category: "등산",
+    location: "관악산 등산 모임",
+    date: "2026-05-25",
+    time: "05:00",
+    price: "무료",
+    groupName: "관악산 등산 모임",
+    groupIcon: "🏔️",
+    image:
+      "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=300&h=200&fit=crop",
+    participants: 10,
+    maxParticipants: 20,
+    isFull: false,
+  },
+];
