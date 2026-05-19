@@ -13,6 +13,7 @@ interface MeetingData {
   participants: number;
   maxParticipants: number;
   isFull: boolean;
+  tags: string[];
 }
 
 export type { MeetingData };

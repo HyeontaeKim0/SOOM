@@ -7,13 +7,13 @@ import type { MeetingData } from "@/lib/types/MeetingData";
 export default async function MeetingPage() {
   const session = await auth();
   return (
-    <div className="flex flex-1 bg-[#FBF7F3] font-sans ">
-      <div className="py-[50px] px-[40px]">
-        <Button className="bg-[#2A241D] text-white rounded-xl w-[280px] h-[50px]">
+    <div className="flex flex-1 bg-[#FBF7F3] font-sans max-w-7xl mx-auto">
+      <div className="py-[50px] px-[40px] w-[360px] shrink-0">
+        <Button className="bg-[#2A241D] text-white rounded-xl w-full h-[50px]">
           + 새 모임 만들기
         </Button>
         {/*  mockMeetingData 카테고리 나열 */}
-        <div className="flex flex-col gap-2 mt-5">
+        <div className="flex flex-col gap-2 mt-5  rounded-xl p-4">
           <span className="text-sm text-[#4A4A4A] font-bold">카테고리</span>
           {[...new Set(mockMeetingData.map((m) => m.category))].map(
             (category) => (
@@ -31,8 +31,31 @@ export default async function MeetingPage() {
             ),
           )}
         </div>
+        {/* mockMeetingData 태그갯수를 카운트하여 가장 많은거 부터 상위 5개 태그를 출력 */}
+        <div className="flex flex-col gap-2 mt-10 bg-[#f1f5e8] rounded-xl p-4 border border-[#dfe8d0]">
+          <span className="text-sm text-[#4A4A4A] font-bold">
+            지금 뜨는 태그
+          </span>
+          {/* 한줄에 최대 3개만 보이고 넘어가면 다음줄 */}
+          <div className="flex flex-wrap gap-2 mt-2">
+            {[...new Set(mockMeetingData.flatMap((m) => m.tags))]
+              .sort(
+                (a, b) =>
+                  mockMeetingData.filter((m) => m.tags.includes(b)).length -
+                  mockMeetingData.filter((m) => m.tags.includes(a)).length,
+              )
+              .slice(0, 5)
+              .map((tag) => (
+                <div key={tag} className="flex gap-2 items-center">
+                  <div className="text-sm font-bold text-[#5f7a4a] bg-[#ffffff] rounded-full px-2 py-1 whitespace-nowrap">
+                    #{tag}
+                  </div>
+                </div>
+              ))}
+          </div>
+        </div>
       </div>
-      <div className="flex flex-col gap-4 flex-1 font-sans py-[50px] px-[50px]">
+      <div className="flex flex-col gap-4 flex-1 font-sans py-[50px] px-[10px]">
         {/* 타이틀 */}
         <div className="flex flex-col">
           <div className="flex items-center gap-2">
