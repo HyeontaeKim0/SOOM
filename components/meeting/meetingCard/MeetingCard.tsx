@@ -4,23 +4,7 @@ import type { Session } from "next-auth";
 
 const DAY_NAMES = ["일", "월", "화", "수", "목", "금", "토"];
 
-interface MeetingWithHost {
-  id: string;
-  title: string;
-  description: string;
-  image: string;
-  category: string;
-  location: string;
-  date: string;
-  time: string;
-  duration: string | null;
-  price: string;
-  maxParticipants: number;
-  isOnline: boolean;
-  tags: string[];
-  filter: string[];
-  host: { name: string | null; image: string | null; id: string };
-}
+import type { MeetingWithHost } from "@/lib/types/MeetingData";
 
 function getDateParts(dateStr: string) {
   const date = new Date(dateStr);

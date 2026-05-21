@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
+import { createMeeting } from "@/lib/services/meetingService";
 import type { CreateMeetingRequest } from "@/lib/types/MeetingData";
 
 export async function POST(request: Request) {
@@ -16,34 +16,17 @@ export async function POST(request: Request) {
     if (!body.title || !body.category || !body.date || !body.time) {
       return NextResponse.json(
         { error: "필수 항목을 입력해주세요. (제목, 카테고리, 날짜, 시간)" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    const meeting = await prisma.meeting.create({
-      data: {
-        title: body.title,
-        description: body.description ?? "",
-        image: body.image ?? "",
-        category: body.category,
-        location: body.location ?? "",
-        date: body.date,
-        time: body.time,
-        duration: body.duration ?? null,
-        price: body.price ?? "무료",
-        maxParticipants: body.maxParticipants ?? 8,
-        isOnline: body.isOnline ?? false,
-        tags: body.tags ?? [],
-        filter: body.filter ?? [],
-        hostId: session.user.id,
-      },
-    });
+    const meeting = await createMeeting(body, session.user.id);
 
     return NextResponse.json(meeting, { status: 201 });
   } catch {
     return NextResponse.json(
       { error: "모임 생성에 실패했습니다." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -52,4 +52,29 @@ interface MeetingFormData {
   tags: string[];
 }
 
-export type { MeetingData, CreateMeetingRequest, MeetingFormData };
+// 미팅카드 타입
+
+interface MeetingWithHost {
+  id: string;
+  title: string;
+  description: string;
+  image: string;
+  category: string;
+  location: string;
+  date: string;
+  time: string;
+  duration: string | null;
+  price: string;
+  maxParticipants: number;
+  isOnline: boolean;
+  tags: string[];
+  filter: string[];
+  host: { name: string | null; image: string | null; id: string };
+}
+
+export type {
+  MeetingData,
+  CreateMeetingRequest,
+  MeetingFormData,
+  MeetingWithHost,
+};
