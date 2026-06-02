@@ -47,6 +47,8 @@ model User {
   accounts      Account[]
   sessions      Session[]
   meetings      Meeting[]
+  boardPosts    BoardPost[]
+  boardComments BoardComment[]
 }
 
 model Meeting {
@@ -76,4 +78,35 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+
+
+
+model BoardPost {
+  id           String         @id @default(cuid())
+  category     String
+  title        String
+  content      String         @db.Text
+  tags         String[]
+  viewCount    Int            @default(0)
+  authorId     String
+  author       User           @relation(fields: [authorId], references: [id])
+  comments     BoardComment[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+}
+
+model BoardComment {
+  id        String         @id @default(cuid())
+  content   String         @db.Text
+  postId    String
+  post      BoardPost      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User           @relation(fields: [authorId], references: [id])
+  parentId  String?
+  parent    BoardComment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   BoardComment[] @relation("CommentReplies")
+  depth     Int            @default(0)
+  createdAt DateTime       @default(now())
 }

@@ -7,49 +7,40 @@ import type { Session } from "next-auth";
 
 import MyProfile from "./component/myProfile/MyProfile";
 import SearchInput from "./component/searchInput/SearchInput";
+import SSOModal, { useOverlayState } from "@/components/auth/SSOModal";
+
+import Logo from "@/assets/logo/BetaLogo.png";
+import Image from "next/image";
 
 export default function NavBar({ session }: { session: Session | null }) {
   const pathname = usePathname();
+  const loginModalState = useOverlayState();
+
   return (
-    <div className="flex items-center gap-6 p-4 bg-[#Ffff]">
-      <div className="flex items-center gap-6 justify-between w-full">
-        <div className="flex items-center gap-6">
-          <div>
-            <span className="text-2xl text-signature font-bold">LOGO</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Link
-              href="/home"
-              className={`text-l font-bold text-[#4A4A4A] rounded-lg px-4 py-1 ${pathname === "/home" ? "bg-[#F4EFE6]" : ""}`}
-            >
-              홈
-            </Link>
-            <Link
-              href="/meeting"
-              className={`text-l font-bold text-[#4A4A4A] rounded-lg px-4 py-1 ${pathname === "/meeting" || pathname === "/meeting/create" ? "bg-[#F4EFE6]" : ""}`}
-            >
-              모임
-            </Link>
-            <Link
-              href="/board"
-              className={`text-l font-bold text-[#4A4A4A] rounded-lg px-4 py-1 ${pathname === "/board" ? "bg-[#F4EFE6]" : ""}`}
-            >
-              게시판
+    <>
+      <div className="flex items-center px-5   bg-white border-b border-[#F0EBE4] sticky top-0 z-40">
+        <div className="flex items-center justify-between w-full">
+          <div className="flex items-center gap-4 md:gap-6">
+            <Link href="/board" className="mt-1">
+              <Image src={Logo} alt="logo" width={80} />
             </Link>
           </div>
-        </div>
-        {pathname == "/meeting" && (
+
           <div className="flex items-center gap-1">
-            <SearchInput />
+            {session ? (
+              <MyProfile session={session} signOutAction={signOutAction} />
+            ) : (
+              <button
+                onClick={loginModalState.open}
+                className="rounded-full bg-[#2A241D] px-4 py-1.5 md:px-5 md:py-2 text-sm font-semibold text-white hover:bg-[#3D3530] transition-colors cursor-pointer"
+              >
+                로그인
+              </button>
+            )}
           </div>
-        )}
-        <div className="flex items-center gap-1">
-          <MyProfile
-            session={session as Session}
-            signOutAction={signOutAction}
-          />
         </div>
       </div>
-    </div>
+      <SSOModal state={loginModalState} />
+    </>
   );
 }
