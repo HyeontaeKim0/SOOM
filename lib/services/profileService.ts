@@ -22,3 +22,20 @@ export async function getUserBoardComments(authorId: string) {
     },
   });
 }
+
+export async function getUserLikedPosts(userId: string) {
+  const likes = await prisma.boardPostLike.findMany({
+    where: { userId },
+    orderBy: { createdAt: "desc" },
+    include: {
+      post: {
+        include: {
+          author: { select: authorSelect },
+          _count: { select: { comments: true } },
+        },
+      },
+    },
+  });
+
+  return likes.map((like) => like.post);
+}

@@ -1,6 +1,12 @@
+import Link from "next/link";
+import BoardCard from "@/components/board/boardCard/BoardCard";
+import type { BoardPost } from "@/lib/types/BoardData";
+
 export default function LikedPostsSection({
+  posts,
   hideHeader = false,
 }: {
+  posts: BoardPost[];
   hideHeader?: boolean;
 }) {
   return (
@@ -8,16 +14,29 @@ export default function LikedPostsSection({
       {!hideHeader && (
         <div className="flex items-center gap-2">
           <h2 className="text-lg font-bold text-[#2A241D]">좋아요한 글</h2>
-          <span className="text-xs font-semibold text-[#8C8478] bg-[#F5F0EB] rounded-full px-2.5 py-0.5">
-            준비 중
-          </span>
+          <span className="text-sm text-[#8C8478]">({posts.length}개)</span>
         </div>
       )}
-      <div className="flex flex-col items-center justify-center py-12 rounded-2xl bg-white border border-dashed border-gray-200 text-[#8C8478]">
-        <span className="text-3xl mb-3">❤️</span>
-        <p className="text-sm font-semibold">좋아요 기능이 곧 추가될 예정이에요</p>
-        <p className="text-xs mt-1">마음에 든 글을 모아볼 수 있게 준비하고 있어요</p>
-      </div>
+      {posts.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-12 rounded-2xl bg-white border border-gray-100 text-[#8C8478]">
+          <span className="text-3xl mb-3">❤️</span>
+          <p className="text-sm font-semibold">아직 좋아요한 글이 없어요</p>
+          <Link
+            href="/board"
+            className="mt-3 text-sm font-semibold text-signature hover:underline"
+          >
+            게시판 둘러보기
+          </Link>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-3">
+          {posts.map((post) => (
+            <Link key={post.id} href={`/board/${post.id}`}>
+              <BoardCard post={post} />
+            </Link>
+          ))}
+        </div>
+      )}
     </section>
   );
 }

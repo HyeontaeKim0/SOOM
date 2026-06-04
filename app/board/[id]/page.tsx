@@ -1,4 +1,4 @@
-import { getBoardPostById } from "@/lib/services/boardService";
+import { getBoardPostById, isBoardPostLikedByUser } from "@/lib/services/boardService";
 import { auth } from "@/auth";
 import BoardDetailClient from "@/components/board/boardDetail/BoardDetailClient";
 import CommentSection from "@/components/board/boardDetail/CommentSection";
@@ -16,6 +16,9 @@ export default async function BoardDetailPage({
   if (!post) notFound();
 
   const currentUserId = session?.user?.id;
+  const isLiked = currentUserId
+    ? await isBoardPostLikedByUser(id, currentUserId)
+    : false;
 
   return (
     <div className="flex flex-1 bg-[#FBF7F3] font-sans w-full">
@@ -39,7 +42,11 @@ export default async function BoardDetailPage({
         </Link>
 
         {/* 게시글 본문 (인라인 수정 포함) */}
-        <BoardDetailClient post={post} currentUserId={currentUserId} />
+        <BoardDetailClient
+          post={post}
+          currentUserId={currentUserId}
+          isLiked={isLiked}
+        />
 
         {/* 댓글 섹션 */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 px-4 py-5 md:px-8 md:py-6">

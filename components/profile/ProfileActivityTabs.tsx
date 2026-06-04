@@ -10,11 +10,13 @@ import type { UserBoardComment } from "@/lib/types/ProfileData";
 type ProfileActivityTabsProps = {
   posts: BoardPost[];
   comments: UserBoardComment[];
+  likedPosts: BoardPost[];
 };
 
 export default function ProfileActivityTabs({
   posts,
   comments,
+  likedPosts,
 }: ProfileActivityTabsProps) {
   return (
     <Tabs
@@ -32,7 +34,7 @@ export default function ProfileActivityTabs({
             <Tabs.Indicator />
           </Tabs.Tab>
           <Tabs.Tab id="liked">
-            좋아요한 글
+            좋아요한 글 ({likedPosts.length})
             <Tabs.Indicator />
           </Tabs.Tab>
         </Tabs.List>
@@ -44,7 +46,7 @@ export default function ProfileActivityTabs({
         <UserCommentsSection comments={comments} hideHeader />
       </Tabs.Panel>
       <Tabs.Panel className="pt-4" id="liked">
-        <LikedPostsSection hideHeader />
+        <LikedPostsSection posts={likedPosts} hideHeader />
       </Tabs.Panel>
     </Tabs>
   );

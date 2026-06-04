@@ -5,6 +5,7 @@ import { auth } from "@/auth";
 import {
   getUserBoardPosts,
   getUserBoardComments,
+  getUserLikedPosts,
 } from "@/lib/services/profileService";
 
 export default async function ProfilePage() {
@@ -15,9 +16,10 @@ export default async function ProfilePage() {
     redirect("/board");
   }
 
-  const [posts, comments] = await Promise.all([
+  const [posts, comments, likedPosts] = await Promise.all([
     getUserBoardPosts(userId),
     getUserBoardComments(userId),
+    getUserLikedPosts(userId),
   ]);
 
   return (
@@ -31,7 +33,11 @@ export default async function ProfilePage() {
 
         <Info userId={userId} email={session.user?.email} />
 
-        <ProfileActivityTabs posts={posts} comments={comments} />
+        <ProfileActivityTabs
+          posts={posts}
+          comments={comments}
+          likedPosts={likedPosts}
+        />
       </div>
     </div>
   );

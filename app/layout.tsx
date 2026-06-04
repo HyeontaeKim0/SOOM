@@ -5,6 +5,7 @@ import BottomNav from "@/components/navBar/BottomNav";
 import { auth } from "@/auth";
 
 import { AuthSessionProvider } from "@/components/auth/session-provider";
+import titleLogo from "@/assets/logo/TitleLogo.png";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -18,8 +19,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "UnnieSide",
-  description: "언니들의 커뮤니티",
+  title: "SOOM",
+  icons: {
+    icon: titleLogo.src,
+  },
+  description: "익명 커뮤니티",
 };
 
 export const viewport: Viewport = {

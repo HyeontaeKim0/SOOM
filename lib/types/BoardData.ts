@@ -5,6 +5,7 @@ export type BoardPost = {
   content: string;
   tags: string[];
   viewCount: number;
+  likeCount: number;
   createdAt: Date | string;
   author: {
     id: string;
@@ -37,6 +38,7 @@ export type BoardPostDetail = {
   content: string;
   tags: string[];
   viewCount: number;
+  likeCount: number;
   createdAt: Date | string;
   updatedAt: Date | string;
   author: {

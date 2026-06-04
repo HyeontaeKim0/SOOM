@@ -49,6 +49,7 @@ model User {
   meetings      Meeting[]
   boardPosts    BoardPost[]
   boardComments BoardComment[]
+  boardPostLikes BoardPostLike[]
 }
 
 model Meeting {
@@ -90,11 +91,25 @@ model BoardPost {
   content      String         @db.Text
   tags         String[]
   viewCount    Int            @default(0)
+  likeCount    Int            @default(0)
   authorId     String
   author       User           @relation(fields: [authorId], references: [id])
   comments     BoardComment[]
+  likes        BoardPostLike[]
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
+}
+
+model BoardPostLike {
+  id        String    @id @default(cuid())
+  postId    String
+  post      BoardPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+
+  @@unique([postId, userId])
+  @@index([userId])
 }
 
 model BoardComment {

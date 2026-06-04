@@ -1,5 +1,11 @@
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import type { CreateBoardPostRequest } from "@/lib/types/BoardData";
+
+export type BoardPostLikeResult = {
+  liked: boolean;
+  likeCount: number;
+};
 
 export async function getBoardPosts(category?: string) {
   return prisma.boardPost.findMany({
@@ -19,6 +25,126 @@ export async function incrementViewCount(id: string) {
     where: { id },
     data: { viewCount: { increment: 1 } },
     select: { id: true },
+  });
+}
+
+function isUniqueConstraintError(
+  error: unknown,
+): error is Prisma.PrismaClientKnownRequestError {
+  return (
+    error instanceof Prisma.PrismaClientKnownRequestError &&
+    error.code === "P2002"
+  );
+}
+
+export async function isBoardPostLikedByUser(
+  postId: string,
+  userId: string,
+): Promise<boolean> {
+  const like = await prisma.boardPostLike.findUnique({
+    where: { postId_userId: { postId, userId } },
+    select: { id: true },
+  });
+  return like !== null;
+}
+
+export async function likeBoardPost(
+  postId: string,
+  userId: string,
+): Promise<BoardPostLikeResult> {
+  return prisma.$transaction(async (tx) => {
+    try {
+      await tx.boardPostLike.create({
+        data: { postId, userId },
+      });
+    } catch (error) {
+      if (isUniqueConstraintError(error)) {
+        const post = await tx.boardPost.findUniqueOrThrow({
+          where: { id: postId },
+          select: { likeCount: true },
+        });
+        return { liked: true, likeCount: post.likeCount };
+      }
+      throw error;
+    }
+
+    const post = await tx.boardPost.update({
+      where: { id: postId },
+      data: { likeCount: { increment: 1 } },
+      select: { likeCount: true },
+    });
+
+    return { liked: true, likeCount: post.likeCount };
+  });
+}
+
+export async function unlikeBoardPost(
+  postId: string,
+  userId: string,
+): Promise<BoardPostLikeResult> {
+  return prisma.$transaction(async (tx) => {
+    const deleted = await tx.boardPostLike.deleteMany({
+      where: { postId, userId },
+    });
+
+    if (deleted.count === 0) {
+      const post = await tx.boardPost.findUniqueOrThrow({
+        where: { id: postId },
+        select: { likeCount: true },
+      });
+      return { liked: false, likeCount: post.likeCount };
+    }
+
+    const post = await tx.boardPost.update({
+      where: { id: postId },
+      data: { likeCount: { decrement: 1 } },
+      select: { likeCount: true },
+    });
+
+    return { liked: false, likeCount: post.likeCount };
+  });
+}
+
+export async function toggleBoardPostLike(
+  postId: string,
+  userId: string,
+): Promise<BoardPostLikeResult> {
+  return prisma.$transaction(async (tx) => {
+    const existing = await tx.boardPostLike.findUnique({
+      where: { postId_userId: { postId, userId } },
+      select: { id: true },
+    });
+
+    if (existing) {
+      await tx.boardPostLike.delete({ where: { id: existing.id } });
+      const post = await tx.boardPost.update({
+        where: { id: postId },
+        data: { likeCount: { decrement: 1 } },
+        select: { likeCount: true },
+      });
+      return { liked: false, likeCount: post.likeCount };
+    }
+
+    try {
+      await tx.boardPostLike.create({ data: { postId, userId } });
+    } catch (error) {
+      if (isUniqueConstraintError(error)) {
+        const post = await tx.boardPost.findUniqueOrThrow({
+          where: { id: postId },
+          select: { likeCount: true },
+        });
+        return { liked: true, likeCount: post.likeCount };
+      }
+      throw error;
+    }
+
+    const post = await tx.boardPost.update({
+      where: { id: postId },
+      data: { likeCount: { increment: 1 } },
+      select: { likeCount: true },
+    });
+
+    return { liked: true, likeCount: post.likeCount };
   });
 }
 

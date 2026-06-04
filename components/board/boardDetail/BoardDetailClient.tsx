@@ -7,10 +7,12 @@ import { getAnonymousName } from "@/lib/utils/anonymousName";
 import type { BoardPostDetail } from "@/lib/types/BoardData";
 import Image from "next/image";
 import DefaultProfile from "@/assets/login/DefaultImg.png";
+import { ToggleButton } from "@heroui/react";
 
 interface BoardDetailClientProps {
   post: BoardPostDetail;
   currentUserId?: string;
+  isLiked?: boolean;
 }
 
 function formatDate(date: Date | string) {
@@ -24,9 +26,14 @@ function formatDate(date: Date | string) {
 export default function BoardDetailClient({
   post,
   currentUserId,
+  isLiked: initialIsLiked = false,
 }: BoardDetailClientProps) {
   const router = useRouter();
   const isAuthor = currentUserId === post.author.id;
+
+  const [likeCount, setLikeCount] = useState(post.likeCount);
+  const [isLiked, setIsLiked] = useState(initialIsLiked);
+  const [isLikePending, setIsLikePending] = useState(false);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -94,6 +101,31 @@ export default function BoardDetailClient({
       alert("수정 중 오류가 발생했습니다.");
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleToggleLike = async () => {
+    if (!currentUserId) {
+      alert("로그인이 필요합니다.");
+      return;
+    }
+    if (isLikePending) return;
+
+    setIsLikePending(true);
+    try {
+      const res = await fetch(`/api/board/${post.id}/like`, { method: "POST" });
+      if (res.ok) {
+        const { liked, likeCount: nextLikeCount } = await res.json();
+        setIsLiked(liked);
+        setLikeCount(nextLikeCount);
+      } else {
+        const { error } = await res.json();
+        alert(error ?? "좋아요 처리에 실패했습니다.");
+      }
+    } catch {
+      alert("좋아요 처리 중 오류가 발생했습니다.");
+    } finally {
+      setIsLikePending(false);
     }
   };
 
@@ -231,6 +263,27 @@ export default function BoardDetailClient({
           {post.content}
         </div>
       )}
+      <div className="flex items-center justify-center">
+        <ToggleButton
+          isSelected={isLiked}
+          onPress={handleToggleLike}
+          isDisabled={isLikePending}
+          className="flex items-center gap-1 transition-colors isDisabled:opacity-50 cursor-pointer text-red-500 bg-red-500/10"
+          aria-label={isLiked ? "좋아요 취소" : "좋아요"}
+        >
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill={isLiked ? "red" : "none"}
+            stroke="red"
+            strokeWidth="2"
+          >
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+          </svg>
+          {likeCount}
+        </ToggleButton>
+      </div>
       {/* 작성자 버튼 */}
       {isAuthor && (
         <div className="flex gap-2 shrink-0 justify-end">
