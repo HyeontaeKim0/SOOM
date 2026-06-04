@@ -29,7 +29,7 @@ export default function CreatePostButton({
       <div className="fixed bottom-[100px] right-5">
         <button
           onClick={handlePress}
-          className="flex items-center justify-center w-12 h-12 rounded-xl bg-signature text-white text-lg font-bold shrink-0 active:bg-[#3D3530] transition-colors"
+          className="flex items-center justify-center w-[50px] h-[50px] rounded-full bg-signature text-white text-lg font-bold shrink-0 active:bg-[#3D3530] transition-colors"
           aria-label="글쓰기"
         >
           <SquarePen className="w-6 h-6" />

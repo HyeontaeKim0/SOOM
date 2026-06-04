@@ -34,7 +34,7 @@ export default function NavBar({ session }: { session: Session | null }) {
                 onClick={loginModalState.open}
                 className="rounded-full bg-[#2A241D] px-4 py-1.5 md:px-5 md:py-2 text-sm font-semibold text-white hover:bg-[#3D3530] transition-colors cursor-pointer"
               >
-                로그인
+                시작하기
               </button>
             )}
           </div>

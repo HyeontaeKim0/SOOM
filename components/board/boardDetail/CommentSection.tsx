@@ -7,30 +7,13 @@ import type { BoardComment } from "@/lib/types/BoardData";
 import SSOModal, { useOverlayState } from "@/components/auth/SSOModal";
 import DefaultProfile from "@/assets/login/DefaultImg.png";
 import Image from "next/image";
+import formatRelativeTime from "@/lib/utils/FormatRelativeTime";
+
 interface CommentSectionProps {
   postId: string;
   comments: BoardComment[];
   currentUserId?: string;
-}
-
-function formatRelativeTime(date: Date | string) {
-  const diffSec = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
-
-  if (diffSec < 60) return "방금 전";
-
-  const diffMin = Math.floor(diffSec / 60);
-  if (diffMin < 60) return `${diffMin}분 전`;
-
-  const diffHour = Math.floor(diffMin / 60);
-  if (diffHour < 24) return `${diffHour}시간 전`;
-
-  const diffDay = Math.floor(diffHour / 24);
-  if (diffDay < 30) return `${diffDay}일 전`;
-
-  const diffMonth = Math.floor(diffDay / 30);
-  if (diffMonth < 12) return `${diffMonth}개월 전`;
-
-  return `${Math.floor(diffDay / 365)}년 전`;
+  postAuthorId: string;
 }
 
 function ReplyForm({
@@ -107,6 +90,7 @@ function ReplyForm({
 function CommentItem({
   comment,
   postId,
+  postAuthorId,
   currentUserId,
   depth,
   onDelete,
@@ -114,11 +98,13 @@ function CommentItem({
 }: {
   comment: BoardComment;
   postId: string;
+  postAuthorId: string;
   currentUserId?: string;
   depth: number;
   onDelete: (id: string) => void;
   onReplyAdded: (parentId: string, newReply: BoardComment) => void;
 }) {
+  const isPostAuthor = comment.author.id === postAuthorId;
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -158,11 +144,23 @@ function CommentItem({
             <Image src={DefaultProfile} alt="profile" width={30} height={20} />
           </div>
           <div className="flex flex-col justify-between">
-            <div className="flex items-center ">
+            <div className="flex items-center gap-1.5">
               <span className="text-xs font-semibold text-[#4A4A4A]">
                 {getAnonymousName(comment.author.id)}
               </span>
+              {isPostAuthor && (
+                <span className="text-[10px] font-semibold text-signature">
+                  (글쓴이)
+                </span>
+              )}
             </div>
+            <p className="text-sm text-[#2A241D] leading-relaxed whitespace-pre-wrap mt-1">
+              {comment.content}
+            </p>
+
+            <span className="text-xs text-[#C0B8B0] mt-1">
+              {formatRelativeTime(comment.createdAt)}
+            </span>
             <div className="flex items-center gap-2 mt-1">
               {/* 답글 버튼 - depth 0, 1만 가능 */}
               {currentUserId && depth < 2 && (
@@ -183,12 +181,6 @@ function CommentItem({
                 </button>
               )}
             </div>
-            <p className="text-sm text-[#2A241D] leading-relaxed whitespace-pre-wrap mt-1">
-              {comment.content}
-            </p>
-            <span className="text-xs text-[#C0B8B0]">
-              {formatRelativeTime(comment.createdAt)}
-            </span>
           </div>
         </div>
       </div>
@@ -213,6 +205,7 @@ function CommentItem({
               key={reply.id}
               comment={reply}
               postId={postId}
+              postAuthorId={postAuthorId}
               currentUserId={currentUserId}
               depth={depth + 1}
               onDelete={onDelete}
@@ -257,6 +250,7 @@ export default function CommentSection({
   postId,
   comments: initialComments,
   currentUserId,
+  postAuthorId,
 }: CommentSectionProps) {
   const router = useRouter();
   const loginModalState = useOverlayState();
@@ -359,7 +353,7 @@ export default function CommentSection({
             onClick={() => loginModalState.open()}
             className="cursor-pointer px-5 py-1.5 rounded-lg text-sm font-semibold bg-[#2A241D] text-white hover:bg-[#3D3530] transition-colors"
           >
-            로그인하기
+            시작하기
           </button>
         </div>
       )}
@@ -377,6 +371,7 @@ export default function CommentSection({
               key={comment.id}
               comment={comment}
               postId={postId}
+              postAuthorId={postAuthorId}
               currentUserId={currentUserId}
               depth={0}
               onDelete={handleDelete}

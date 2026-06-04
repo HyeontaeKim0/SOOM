@@ -29,15 +29,15 @@ export default function SSOModal({ state }: SSOModalProps) {
               <Modal.CloseTrigger className="text-[#8C8478] hover:text-[#2A241D] transition-colors text-xl" />
             </Modal.Header>
 
-            <Modal.Body className="flex flex-col items-center gap-6 pb-8">
-              <Image src={Logo} alt="logo" width={120} />
+            <Modal.Body className="flex flex-col items-center gap-6 pb-4">
+              <Image src={Logo} alt="logo" width={150} />
 
               <div className="flex flex-col items-center gap-1 text-center">
                 <Modal.Heading className="text-lg font-bold text-[#2A241D]">
                   로그인이 필요해요
                 </Modal.Heading>
                 <p className="text-sm text-[#8C8478]">
-                  숨숨을 이용하려면 먼저 로그인해 주세요.
+                  숨(SOOM)을 이용하려면 먼저 로그인해 주세요.
                 </p>
               </div>
 

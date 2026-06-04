@@ -1,6 +1,10 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import type { CreateBoardPostRequest } from "@/lib/types/BoardData";
+import {
+  buildAnonymousViewerKey,
+  buildUserViewerKey,
+} from "@/lib/viewTracking";
 
 export type BoardPostLikeResult = {
   liked: boolean;
@@ -20,11 +24,91 @@ export async function getBoardPosts(category?: string) {
 
 const authorSelect = { id: true, name: true, image: true } as const;
 
-export async function incrementViewCount(id: string) {
-  return prisma.boardPost.update({
-    where: { id },
-    data: { viewCount: { increment: 1 } },
-    select: { id: true },
+export type BoardPostViewResult = {
+  counted: boolean;
+  viewCount: number;
+};
+
+export async function recordBoardPostView(
+  postId: string,
+  options: { userId?: string; anonymousViewerId: string },
+): Promise<BoardPostViewResult | null> {
+  const post = await prisma.boardPost.findUnique({
+    where: { id: postId },
+    select: { authorId: true, viewCount: true },
+  });
+
+  if (!post) {
+    return null;
+  }
+
+  if (options.userId && options.userId === post.authorId) {
+    return { counted: false, viewCount: post.viewCount };
+  }
+
+  const userKey = options.userId
+    ? buildUserViewerKey(options.userId)
+    : null;
+  const anonKey = buildAnonymousViewerKey(options.anonymousViewerId);
+
+  return prisma.$transaction(async (tx) => {
+    if (userKey) {
+      const existing = await tx.boardPostView.findFirst({
+        where: {
+          postId,
+          viewerKey: { in: [userKey, anonKey] },
+        },
+        select: { id: true, viewerKey: true },
+      });
+
+      if (existing) {
+        if (existing.viewerKey === anonKey) {
+          await tx.boardPostView.update({
+            where: { id: existing.id },
+            data: { viewerKey: userKey },
+          });
+        }
+        const current = await tx.boardPost.findUniqueOrThrow({
+          where: { id: postId },
+          select: { viewCount: true },
+        });
+        return { counted: false, viewCount: current.viewCount };
+      }
+    } else {
+      const existing = await tx.boardPostView.findUnique({
+        where: { postId_viewerKey: { postId, viewerKey: anonKey } },
+        select: { id: true },
+      });
+
+      if (existing) {
+        return { counted: false, viewCount: post.viewCount };
+      }
+    }
+
+    const viewerKey = userKey ?? anonKey;
+
+    try {
+      await tx.boardPostView.create({
+        data: { postId, viewerKey },
+      });
+    } catch (error) {
+      if (isUniqueConstraintError(error)) {
+        const current = await tx.boardPost.findUniqueOrThrow({
+          where: { id: postId },
+          select: { viewCount: true },
+        });
+        return { counted: false, viewCount: current.viewCount };
+      }
+      throw error;
+    }
+
+    const updated = await tx.boardPost.update({
+      where: { id: postId },
+      data: { viewCount: { increment: 1 } },
+      select: { viewCount: true },
+    });
+
+    return { counted: true, viewCount: updated.viewCount };
   });
 }
 

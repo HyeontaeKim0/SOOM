@@ -31,18 +31,28 @@ export default function BoardDetailClient({
   const router = useRouter();
   const isAuthor = currentUserId === post.author.id;
 
+  const [viewCount, setViewCount] = useState(post.viewCount);
   const [likeCount, setLikeCount] = useState(post.likeCount);
   const [isLiked, setIsLiked] = useState(initialIsLiked);
   const [isLikePending, setIsLikePending] = useState(false);
 
   useEffect(() => {
+    if (isAuthor) return;
+
     const controller = new AbortController();
     fetch(`/api/board/${post.id}/view`, {
       method: "POST",
       signal: controller.signal,
-    }).catch(() => {});
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: { viewCount?: number } | null) => {
+        if (data?.viewCount != null) {
+          setViewCount(data.viewCount);
+        }
+      })
+      .catch(() => {});
     return () => controller.abort();
-  }, [post.id]);
+  }, [post.id, isAuthor]);
 
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -229,7 +239,7 @@ export default function BoardDetailClient({
                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                 <circle cx="12" cy="12" r="3" />
               </svg>
-              {post.viewCount}
+              {viewCount}
             </span>
             <span className="flex items-center gap-1">
               <svg

@@ -54,6 +54,7 @@ export default async function BoardDetailPage({
             postId={post.id}
             comments={post.comments}
             currentUserId={currentUserId}
+            postAuthorId={post.author.id}
           />
         </div>
       </div>
