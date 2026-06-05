@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { MeetingFormData } from "@/app/meeting/create/page";
+import type { MeetingFormData } from "@/lib/types/MeetingData";
 
 const TIME_SLOTS = [
   "06:00",

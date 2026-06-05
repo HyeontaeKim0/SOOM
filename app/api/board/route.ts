@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { getBoardPosts, createBoardPost } from "@/lib/services/boardService";
 import type { CreateBoardPostRequest } from "@/lib/types/BoardData";
+import {
+  normalizeBoardPostBody,
+  validateBoardPostBody,
+} from "@/lib/validation/boardPost";
 
 // GET /api/board?category=free
 export async function GET(request: Request) {
@@ -33,14 +37,15 @@ export async function POST(request: Request) {
   try {
     const body = (await request.json()) as CreateBoardPostRequest;
 
-    if (!body.category || !body.title || !body.content) {
-      return NextResponse.json(
-        { error: "카테고리, 제목, 내용은 필수입니다." },
-        { status: 400 },
-      );
+    const validationError = validateBoardPostBody(body);
+    if (validationError) {
+      return NextResponse.json({ error: validationError }, { status: 400 });
     }
 
-    const post = await createBoardPost(body, session.user.id);
+    const post = await createBoardPost(
+      normalizeBoardPostBody(body),
+      session.user.id,
+    );
     return NextResponse.json(post, { status: 201 });
   } catch {
     return NextResponse.json(

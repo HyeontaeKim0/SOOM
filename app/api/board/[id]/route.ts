@@ -6,6 +6,10 @@ import {
   deleteBoardPost,
 } from "@/lib/services/boardService";
 import type { CreateBoardPostRequest } from "@/lib/types/BoardData";
+import {
+  normalizeBoardPostBody,
+  validateBoardPostBody,
+} from "@/lib/validation/boardPost";
 
 // PATCH /api/board/[id]
 export async function PATCH(
@@ -39,14 +43,12 @@ export async function PATCH(
 
     const body = (await request.json()) as CreateBoardPostRequest;
 
-    if (!body.category || !body.title?.trim() || !body.content?.trim()) {
-      return NextResponse.json(
-        { error: "카테고리, 제목, 내용은 필수입니다." },
-        { status: 400 },
-      );
+    const validationError = validateBoardPostBody(body);
+    if (validationError) {
+      return NextResponse.json({ error: validationError }, { status: 400 });
     }
 
-    const updated = await updateBoardPost(id, body);
+    const updated = await updateBoardPost(id, normalizeBoardPostBody(body));
     return NextResponse.json(updated);
   } catch {
     return NextResponse.json(

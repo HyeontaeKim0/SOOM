@@ -1,6 +1,6 @@
 "use client";
 
-import type { MeetingFormData } from "@/app/meeting/create/page";
+import type { MeetingFormData } from "@/lib/types/MeetingData";
 
 const CATEGORY_LABELS: Record<string, string> = {
   hiking: "등산·아웃도어",

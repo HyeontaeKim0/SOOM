@@ -12,6 +12,8 @@ import type { NotificationItem } from "@/lib/types/NotificationData";
 import NotificationList from "@/components/navBar/component/myProfile/notificationList/NotificationList";
 import DefaultImg from "@/assets/login/DefaultImg.png";
 
+const NOTIFICATION_POLL_INTERVAL_MS = 15_000;
+
 export default function MyProfile({
   session,
   signOutAction,
@@ -26,22 +28,30 @@ export default function MyProfile({
   const [unreadCount, setUnreadCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
-  const fetchNotifications = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const res = await fetch("/api/notifications");
-      if (!res.ok) return;
+  const fetchNotifications = useCallback(
+    async (options?: { silent?: boolean }) => {
+      if (!options?.silent) {
+        setIsLoading(true);
+      }
 
-      const data = (await res.json()) as {
-        notifications: NotificationItem[];
-        unreadCount: number;
-      };
-      setNotifications(data.notifications);
-      setUnreadCount(data.unreadCount);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+      try {
+        const res = await fetch("/api/notifications");
+        if (!res.ok) return;
+
+        const data = (await res.json()) as {
+          notifications: NotificationItem[];
+          unreadCount: number;
+        };
+        setNotifications(data.notifications);
+        setUnreadCount(data.unreadCount);
+      } finally {
+        if (!options?.silent) {
+          setIsLoading(false);
+        }
+      }
+    },
+    [],
+  );
 
   useEffect(() => {
     fetchNotifications();
@@ -52,6 +62,29 @@ export default function MyProfile({
       fetchNotifications();
     }
   }, [drawerState.isOpen, fetchNotifications]);
+
+  useEffect(() => {
+    const poll = () => {
+      if (document.visibilityState === "visible") {
+        fetchNotifications({ silent: true });
+      }
+    };
+
+    const intervalId = window.setInterval(poll, NOTIFICATION_POLL_INTERVAL_MS);
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        fetchNotifications({ silent: true });
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.clearInterval(intervalId);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [fetchNotifications]);
 
   const handleMarkAllRead = async () => {
     const res = await fetch("/api/notifications", {

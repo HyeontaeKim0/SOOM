@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 
 function isPublicRoute(pathname: string): boolean {
   if (pathname === "/") return true;
+  if (pathname === "/hot") return true;
   // /board, /board/[id] 는 비로그인 접근 허용, /board/create 는 로그인 필요
   if (pathname === "/board" || pathname.startsWith("/board/")) {
     return pathname !== "/board/create";

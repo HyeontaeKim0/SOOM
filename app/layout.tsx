@@ -47,7 +47,7 @@ export default async function RootLayout({
       <body className="flex min-h-full flex-col bg-[#FBF7F3] pb-16 md:pb-0">
         <NavBar session={session} />
         <AuthSessionProvider>{children}</AuthSessionProvider>
-        <BottomNav />
+        <BottomNav session={session} />
       </body>
     </html>
   );
