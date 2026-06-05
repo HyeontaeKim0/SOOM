@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import type { Session } from "next-auth";
+import { signOut } from "next-auth/react";
 import { Drawer, Button, useOverlayState } from "@heroui/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -14,13 +15,7 @@ import DefaultImg from "@/assets/login/DefaultImg.png";
 
 const NOTIFICATION_POLL_INTERVAL_MS = 15_000;
 
-export default function MyProfile({
-  session,
-  signOutAction,
-}: {
-  session: Session;
-  signOutAction: () => void;
-}) {
+export default function MyProfile({ session }: { session: Session }) {
   const router = useRouter();
   const drawerState = useOverlayState();
   const anonymousName = getAnonymousName(session.user?.id || "");
@@ -103,6 +98,11 @@ export default function MyProfile({
         readAt: notification.readAt ?? new Date().toISOString(),
       })),
     );
+  };
+
+  const handleSignOut = () => {
+    drawerState.close();
+    void signOut({ callbackUrl: "/board" });
   };
 
   const handleNotificationClick = async (notification: NotificationItem) => {
@@ -229,9 +229,8 @@ export default function MyProfile({
                 </Button>
               </div>
               <Button
-                slot="close"
                 className="flex-1 bg-[#2A241D] text-white"
-                onPress={signOutAction}
+                onPress={handleSignOut}
               >
                 로그아웃
               </Button>

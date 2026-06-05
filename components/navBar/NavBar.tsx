@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { signOutAction } from "@/actions/auth";
 
 import MyProfile from "./component/myProfile/MyProfile";
 import SearchInput from "./component/searchInput/SearchInput";
@@ -29,7 +28,7 @@ export default function NavBar() {
 
           <div className="flex items-center gap-1">
             {session ? (
-              <MyProfile session={session} signOutAction={signOutAction} />
+              <MyProfile session={session} />
             ) : (
               <button
                 onClick={loginModalState.open}
