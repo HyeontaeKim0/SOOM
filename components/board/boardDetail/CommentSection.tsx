@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { getAnonymousName } from "@/lib/utils/anonymousName";
 import type { BoardComment } from "@/lib/types/BoardData";
 import SSOModal, { useOverlayState } from "@/components/auth/SSOModal";
+import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
 import DefaultProfile from "@/assets/login/DefaultImg.png";
 import Image from "next/image";
 import formatRelativeTime from "@/lib/utils/FormatRelativeTime";
@@ -111,6 +112,7 @@ function CommentItem({
   ) => void;
 }) {
   const isPostAuthor = comment.author.id === postAuthorId;
+  const deleteModalState = useOverlayState();
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [commentLikeCount, setCommentLikeCount] = useState(
@@ -149,13 +151,13 @@ function CommentItem({
   };
 
   const handleDelete = async () => {
-    if (!confirm("댓글을 삭제하시겠습니까?")) return;
     setIsDeleting(true);
     try {
       const res = await fetch(`/api/board/${postId}/comments/${comment.id}`, {
         method: "DELETE",
       });
       if (res.ok) {
+        deleteModalState.close();
         onDelete(comment.id);
       } else {
         const { error } = await res.json();
@@ -176,7 +178,7 @@ function CommentItem({
         : "";
 
   return (
-    <li className={indentClass}>
+    <li id={`comment-${comment.id}`} className={indentClass}>
       <div className="flex gap-3 py-3">
         {/* <Avatar size={depth === 0 ? 32 : 28} /> */}
         <div className="flex-1 flex  gap-3">
@@ -213,7 +215,7 @@ function CommentItem({
               )}
               {currentUserId === comment.author.id && (
                 <button
-                  onClick={handleDelete}
+                  onClick={deleteModalState.open}
                   disabled={isDeleting}
                   className="text-xs text-[#C0B8B0] hover:text-red-400 transition-colors disabled:opacity-50"
                 >
@@ -278,6 +280,14 @@ function CommentItem({
           ))}
         </ul>
       )}
+
+      <DeleteConfirmModal
+        state={deleteModalState}
+        title="댓글을 삭제하시겠어요?"
+        description="삭제한 댓글은 복구할 수 없습니다."
+        isPending={isDeleting}
+        onConfirm={handleDelete}
+      />
     </li>
   );
 }

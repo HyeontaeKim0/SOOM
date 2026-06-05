@@ -8,6 +8,9 @@ import type { BoardPostDetail } from "@/lib/types/BoardData";
 import Image from "next/image";
 import DefaultProfile from "@/assets/login/DefaultImg.png";
 import { ToggleButton } from "@heroui/react";
+import DeleteConfirmModal, {
+  useOverlayState,
+} from "@/components/common/DeleteConfirmModal";
 
 interface BoardDetailClientProps {
   post: BoardPostDetail;
@@ -29,6 +32,7 @@ export default function BoardDetailClient({
   isLiked: initialIsLiked = false,
 }: BoardDetailClientProps) {
   const router = useRouter();
+  const deleteModalState = useOverlayState();
   const isAuthor = currentUserId === post.author.id;
 
   const [viewCount, setViewCount] = useState(post.viewCount);
@@ -140,13 +144,12 @@ export default function BoardDetailClient({
   };
 
   const handleDelete = async () => {
-    if (!confirm("게시글을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."))
-      return;
     setIsDeleting(true);
 
     try {
       const res = await fetch(`/api/board/${post.id}`, { method: "DELETE" });
       if (res.ok) {
+        deleteModalState.close();
         router.push("/board");
         router.refresh();
       } else {
@@ -327,11 +330,11 @@ export default function BoardDetailClient({
                 수정
               </button>
               <button
-                onClick={handleDelete}
+                onClick={deleteModalState.open}
                 disabled={isDeleting}
                 className="px-4 py-1.5 rounded-lg text-sm font-semibold border border-red-200 text-red-500 hover:bg-red-50 transition-colors disabled:opacity-50"
               >
-                {isDeleting ? "삭제 중..." : "삭제"}
+                삭제
               </button>
             </>
           )}
@@ -388,6 +391,13 @@ export default function BoardDetailClient({
           </div>
         )
       )}
+      <DeleteConfirmModal
+        state={deleteModalState}
+        title="게시글을 삭제하시겠어요?"
+        description="삭제한 게시글은 복구할 수 없습니다."
+        isPending={isDeleting}
+        onConfirm={handleDelete}
+      />
     </article>
   );
 }

@@ -1,6 +1,10 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import type { CreateBoardPostRequest } from "@/lib/types/BoardData";
+import type {
+  BoardPost,
+  CreateBoardPostRequest,
+} from "@/lib/types/BoardData";
+import { getTodayKST } from "@/lib/utils/kstDate";
 import {
   buildAnonymousViewerKey,
   buildUserViewerKey,
@@ -24,6 +28,48 @@ export async function getBoardPosts(category?: string) {
       author: { select: { id: true, name: true, image: true } },
       _count: { select: { comments: true } },
     },
+  });
+}
+
+export type HotBoardPost = BoardPost & { todayViewCount: number };
+
+export async function getHotBoardPosts(limit = 50): Promise<HotBoardPost[]> {
+  const viewedOn = getTodayKST();
+
+  const groups = await prisma.boardPostView.groupBy({
+    by: ["postId"],
+    where: { viewedOn },
+    _count: { id: true },
+    orderBy: { _count: { id: "desc" } },
+    take: limit,
+  });
+
+  if (groups.length === 0) {
+    return [];
+  }
+
+  const todayViewCountByPostId = new Map(
+    groups.map((g) => [g.postId, g._count.id]),
+  );
+  const postIds = groups.map((g) => g.postId);
+
+  const posts = await prisma.boardPost.findMany({
+    where: { id: { in: postIds } },
+    include: {
+      author: { select: { id: true, name: true, image: true } },
+      _count: { select: { comments: true } },
+    },
+  });
+
+  const postById = new Map(posts.map((p) => [p.id, p]));
+
+  return postIds.flatMap((id) => {
+    const post = postById.get(id);
+    const todayViewCount = todayViewCountByPostId.get(id);
+    if (!post || todayViewCount == null) {
+      return [];
+    }
+    return [{ ...post, todayViewCount }];
   });
 }
 
@@ -55,46 +101,39 @@ export async function recordBoardPostView(
     ? buildUserViewerKey(options.userId)
     : null;
   const anonKey = buildAnonymousViewerKey(options.anonymousViewerId);
+  const viewedOn = getTodayKST();
+  const viewerKeys = userKey ? [userKey, anonKey] : [anonKey];
 
   return prisma.$transaction(async (tx) => {
-    if (userKey) {
-      const existing = await tx.boardPostView.findFirst({
-        where: {
-          postId,
-          viewerKey: { in: [userKey, anonKey] },
-        },
-        select: { id: true, viewerKey: true },
-      });
+    const todayView = await tx.boardPostView.findFirst({
+      where: { postId, viewedOn, viewerKey: { in: viewerKeys } },
+      select: { id: true, viewerKey: true },
+    });
 
-      if (existing) {
-        if (existing.viewerKey === anonKey) {
-          await tx.boardPostView.update({
-            where: { id: existing.id },
-            data: { viewerKey: userKey },
-          });
-        }
-        const current = await tx.boardPost.findUniqueOrThrow({
-          where: { id: postId },
-          select: { viewCount: true },
+    if (todayView) {
+      if (userKey && todayView.viewerKey === anonKey) {
+        await tx.boardPostView.update({
+          where: { id: todayView.id },
+          data: { viewerKey: userKey },
         });
-        return { counted: false, viewCount: current.viewCount };
       }
-    } else {
-      const existing = await tx.boardPostView.findUnique({
-        where: { postId_viewerKey: { postId, viewerKey: anonKey } },
-        select: { id: true },
+      const current = await tx.boardPost.findUniqueOrThrow({
+        where: { id: postId },
+        select: { viewCount: true },
       });
-
-      if (existing) {
-        return { counted: false, viewCount: post.viewCount };
-      }
+      return { counted: false, viewCount: current.viewCount };
     }
+
+    const everViewed = await tx.boardPostView.findFirst({
+      where: { postId, viewerKey: { in: viewerKeys } },
+      select: { id: true },
+    });
 
     const viewerKey = userKey ?? anonKey;
 
     try {
       await tx.boardPostView.create({
-        data: { postId, viewerKey },
+        data: { postId, viewerKey, viewedOn },
       });
     } catch (error) {
       if (isUniqueConstraintError(error)) {
@@ -107,13 +146,16 @@ export async function recordBoardPostView(
       throw error;
     }
 
-    const updated = await tx.boardPost.update({
-      where: { id: postId },
-      data: { viewCount: { increment: 1 } },
-      select: { viewCount: true },
-    });
+    if (!everViewed) {
+      const updated = await tx.boardPost.update({
+        where: { id: postId },
+        data: { viewCount: { increment: 1 } },
+        select: { viewCount: true },
+      });
+      return { counted: true, viewCount: updated.viewCount };
+    }
 
-    return { counted: true, viewCount: updated.viewCount };
+    return { counted: false, viewCount: post.viewCount };
   });
 }
 

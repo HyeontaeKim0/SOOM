@@ -5,7 +5,14 @@ import formatRelativeTime from "@/lib/utils/FormatRelativeTime";
 
 export type { BoardPost };
 
-export default function BoardCard({ post }: { post: BoardPost }) {
+export default function BoardCard({
+  post,
+  displayViewCount,
+}: {
+  post: BoardPost;
+  displayViewCount?: number;
+}) {
+  const viewCount = displayViewCount ?? post.viewCount;
   const formattedDate = new Date(post.createdAt).toLocaleDateString("ko-KR", {
     year: "numeric",
     month: "2-digit",
@@ -64,7 +71,8 @@ export default function BoardCard({ post }: { post: BoardPost }) {
             </svg>
             {post.likeCount}
           </span>
-          <span className="flex items-center gap-1">
+          {/* 뷰 카운터가 있으나 굳이 보여줄 필요 없어보임 */}
+          {/* <span className="flex items-center gap-1">
             <svg
               width="13"
               height="13"
@@ -77,7 +85,7 @@ export default function BoardCard({ post }: { post: BoardPost }) {
               <circle cx="12" cy="12" r="3" />
             </svg>
             {post.viewCount}
-          </span>
+          </span> */}
           <span className="flex items-center gap-1">
             <svg
               width="13"

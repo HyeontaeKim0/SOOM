@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { createBoardComment } from "@/lib/services/boardService";
+import { createCommentNotifications } from "@/lib/services/notificationService";
 
 // POST /api/board/[id]/comments
 export async function POST(
@@ -42,8 +43,20 @@ export async function POST(
       parentId: body.parentId,
     });
 
+    try {
+      await createCommentNotifications({
+        postId,
+        commentId: comment.id,
+        authorId: session.user.id,
+        parentId: body.parentId,
+      });
+    } catch (notificationError) {
+      console.error("댓글 알림 생성 실패:", notificationError);
+    }
+
     return NextResponse.json(comment, { status: 201 });
-  } catch {
+  } catch (error) {
+    console.error("댓글 작성 실패:", error);
     return NextResponse.json(
       { error: "댓글 작성에 실패했습니다." },
       { status: 500 },
