@@ -11,6 +11,8 @@ import { ToggleButton } from "@heroui/react";
 import DeleteConfirmModal, {
   useOverlayState,
 } from "@/components/common/DeleteConfirmModal";
+import PostImagePicker from "@/components/board/PostImagePicker";
+import PostImageGallery from "@/components/board/PostImageGallery";
 
 interface BoardDetailClientProps {
   post: BoardPostDetail;
@@ -66,6 +68,7 @@ export default function BoardDetailClient({
   const [editTitle, setEditTitle] = useState(post.title);
   const [editContent, setEditContent] = useState(post.content);
   const [editTags, setEditTags] = useState<string[]>(post.tags);
+  const [editImages, setEditImages] = useState<string[]>(post.images ?? []);
   const [tagInput, setTagInput] = useState("");
 
   const handleTagKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -84,6 +87,7 @@ export default function BoardDetailClient({
     setEditTitle(post.title);
     setEditContent(post.content);
     setEditTags(post.tags);
+    setEditImages(post.images ?? []);
     setTagInput("");
     setIsEditing(false);
   };
@@ -101,6 +105,7 @@ export default function BoardDetailClient({
           title: editTitle,
           content: editContent,
           tags: editTags,
+          images: editImages,
         }),
       });
 
@@ -263,17 +268,23 @@ export default function BoardDetailClient({
 
       {/* 본문 */}
       {isEditing ? (
-        <textarea
-          value={editContent}
-          onChange={(e) => setEditContent(e.target.value)}
-          maxLength={3000}
-          rows={14}
-          placeholder="내용을 입력해주세요"
-          className="w-full border border-[#E0D9D0] rounded-xl px-4 py-3 text-sm text-[#2A241D] placeholder-[#C0B8B0] focus:outline-none focus:border-signature transition-colors resize-none leading-relaxed"
-        />
+        <div className="flex flex-col gap-4">
+          <PostImagePicker images={editImages} onChange={setEditImages} />
+          <textarea
+            value={editContent}
+            onChange={(e) => setEditContent(e.target.value)}
+            maxLength={3000}
+            rows={14}
+            placeholder="내용을 입력해주세요"
+            className="w-full border border-[#E0D9D0] rounded-xl px-4 py-3 text-sm text-[#2A241D] placeholder-[#C0B8B0] focus:outline-none focus:border-signature transition-colors resize-none leading-relaxed"
+          />
+        </div>
       ) : (
-        <div className="text-sm text-[#2A241D] leading-7 whitespace-pre-wrap min-h-[200px]">
-          {post.content}
+        <div className="flex flex-col gap-4">
+          <div className="text-sm text-[#2A241D] leading-7 whitespace-pre-wrap min-h-[120px]">
+            {post.content}
+          </div>
+          <PostImageGallery images={post.images ?? []} />
         </div>
       )}
       <div className="flex items-center justify-center">

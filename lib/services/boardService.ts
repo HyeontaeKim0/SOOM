@@ -317,6 +317,7 @@ export async function createBoardPost(
       category: data.category,
       title: data.title,
       content: data.content,
+      images: data.images ?? [],
       tags: data.tags ?? [],
       authorId,
     },
@@ -333,6 +334,7 @@ export async function updateBoardPost(
       category: data.category,
       title: data.title,
       content: data.content,
+      images: data.images ?? [],
       tags: data.tags ?? [],
     },
     include: {

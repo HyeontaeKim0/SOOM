@@ -1,10 +1,12 @@
 import { BOARD_CATEGORIES } from "@/lib/utils/BoardCategories";
 import type { CreateBoardPostRequest } from "@/lib/types/BoardData";
+import { isCloudinaryImageUrl } from "@/lib/utils/cloudinary";
 
 export const BOARD_POST_TITLE_MAX = 100;
 export const BOARD_POST_CONTENT_MAX = 3000;
 export const BOARD_POST_TAGS_MAX = 5;
 export const BOARD_POST_TAG_MAX = 20;
+export const BOARD_POST_IMAGES_MAX = 3;
 
 const USER_WRITABLE_CATEGORIES = BOARD_CATEGORIES.filter(
   (category) => category !== "notice",
@@ -48,6 +50,17 @@ export function validateBoardPostBody(
     }
   }
 
+  const images = body.images ?? [];
+  if (images.length > BOARD_POST_IMAGES_MAX) {
+    return `이미지는 최대 ${BOARD_POST_IMAGES_MAX}장까지 등록할 수 있습니다.`;
+  }
+
+  for (const image of images) {
+    if (!isCloudinaryImageUrl(image)) {
+      return "유효하지 않은 이미지 URL입니다.";
+    }
+  }
+
   return null;
 }
 
@@ -58,6 +71,7 @@ export function normalizeBoardPostBody(
     category: body.category,
     title: body.title.trim(),
     content: body.content.trim(),
+    images: body.images ?? [],
     tags: (body.tags ?? []).map((tag) => tag.trim().replace(/^#/, "")),
   };
 }

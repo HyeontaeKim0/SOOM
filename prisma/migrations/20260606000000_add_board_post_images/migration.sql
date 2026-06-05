@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "BoardPost" ADD COLUMN "images" TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[];

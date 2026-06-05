@@ -3,6 +3,7 @@
 import { useState, KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
 import { BOARD_CATEGORY_LABELS } from "@/lib/utils/BoardCategories";
+import PostImagePicker from "@/components/board/PostImagePicker";
 
 export default function CreateBoardPage() {
   const router = useRouter();
@@ -11,6 +12,7 @@ export default function CreateBoardPage() {
   const [content, setContent] = useState("");
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState<string[]>([]);
+  const [images, setImages] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const handleTagKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if ((e.key === "Enter" || e.key === ",") && tagInput.trim()) {
@@ -37,7 +39,7 @@ export default function CreateBoardPage() {
       const res = await fetch("/api/board", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ category, title, content, tags }),
+        body: JSON.stringify({ category, title, content, tags, images }),
       });
 
       if (!res.ok) {
@@ -102,6 +104,9 @@ export default function CreateBoardPage() {
               {title.length}/100
             </div>
           </div>
+
+          {/* 이미지 */}
+          <PostImagePicker images={images} onChange={setImages} />
 
           {/* 본문 */}
           <div className="flex flex-col gap-2">

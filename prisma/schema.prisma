@@ -93,6 +93,7 @@ model BoardPost {
   category     String
   title        String
   content      String         @db.Text
+  images       String[]       @default([])
   tags         String[]
   viewCount    Int            @default(0)
   likeCount    Int            @default(0)

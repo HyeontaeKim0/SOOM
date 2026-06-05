@@ -3,6 +3,7 @@ export type BoardPost = {
   category: string;
   title: string;
   content: string;
+  images: string[];
   tags: string[];
   viewCount: number;
   likeCount: number;
@@ -38,6 +39,7 @@ export type BoardPostDetail = {
   category: string;
   title: string;
   content: string;
+  images: string[];
   tags: string[];
   viewCount: number;
   likeCount: number;
@@ -55,5 +57,6 @@ export type CreateBoardPostRequest = {
   category: string;
   title: string;
   content: string;
+  images?: string[];
   tags: string[];
 };
