@@ -1,7 +1,6 @@
-import { redirect } from "next/navigation";
 import Info from "@/components/profile/info/Info";
 import ProfileActivityTabs from "@/components/profile/ProfileActivityTabs";
-import { auth } from "@/auth";
+import { requireUser } from "@/lib/auth/requireUser";
 import {
   getUserBoardPosts,
   getUserBoardComments,
@@ -9,12 +8,8 @@ import {
 } from "@/lib/services/profileService";
 
 export default async function ProfilePage() {
-  const session = await auth();
-  const userId = session?.user?.id;
-
-  if (!userId) {
-    redirect("/board");
-  }
+  const session = await requireUser();
+  const userId = session.user.id;
 
   const [posts, comments, likedPosts] = await Promise.all([
     getUserBoardPosts(userId),
