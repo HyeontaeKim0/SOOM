@@ -1,4 +1,12 @@
-import { getBoardPostById, isBoardPostLikedByUser } from "@/lib/services/boardService";
+import {
+  getBoardPostById,
+  getLikedCommentIdsForPost,
+  isBoardPostLikedByUser,
+} from "@/lib/services/boardService";
+import {
+  enrichBoardCommentsWithLikes,
+  type BoardCommentInput,
+} from "@/lib/utils/enrichBoardComments";
 import { auth } from "@/auth";
 import BoardDetailClient from "@/components/board/boardDetail/BoardDetailClient";
 import CommentSection from "@/components/board/boardDetail/CommentSection";
@@ -16,9 +24,17 @@ export default async function BoardDetailPage({
   if (!post) notFound();
 
   const currentUserId = session?.user?.id;
-  const isLiked = currentUserId
-    ? await isBoardPostLikedByUser(id, currentUserId)
-    : false;
+  const [isLiked, likedCommentIds] = currentUserId
+    ? await Promise.all([
+        isBoardPostLikedByUser(id, currentUserId),
+        getLikedCommentIdsForPost(id, currentUserId),
+      ])
+    : [false, new Set<string>()];
+
+  const comments = enrichBoardCommentsWithLikes(
+    post.comments as BoardCommentInput[],
+    likedCommentIds,
+  );
 
   return (
     <div className="flex flex-1 bg-[#FBF7F3] font-sans w-full">
@@ -43,7 +59,7 @@ export default async function BoardDetailPage({
 
         {/* 게시글 본문 (인라인 수정 포함) */}
         <BoardDetailClient
-          post={post}
+          post={{ ...post, comments }}
           currentUserId={currentUserId}
           isLiked={isLiked}
         />
@@ -52,7 +68,7 @@ export default async function BoardDetailPage({
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 px-4 py-5 md:px-8 md:py-6">
           <CommentSection
             postId={post.id}
-            comments={post.comments}
+            comments={comments}
             currentUserId={currentUserId}
             postAuthorId={post.author.id}
           />

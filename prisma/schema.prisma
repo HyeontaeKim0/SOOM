@@ -50,6 +50,7 @@ model User {
   boardPosts    BoardPost[]
   boardComments BoardComment[]
   boardPostLikes BoardPostLike[]
+  boardCommentLikes BoardCommentLike[]
 }
 
 model Meeting {
@@ -125,15 +126,29 @@ model BoardPostLike {
 }
 
 model BoardComment {
-  id        String         @id @default(cuid())
-  content   String         @db.Text
-  postId    String
-  post      BoardPost      @relation(fields: [postId], references: [id], onDelete: Cascade)
-  authorId  String
-  author    User           @relation(fields: [authorId], references: [id])
-  parentId  String?
-  parent    BoardComment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
-  replies   BoardComment[] @relation("CommentReplies")
-  depth     Int            @default(0)
-  createdAt DateTime       @default(now())
+  id                String            @id @default(cuid())
+  content           String            @db.Text
+  postId            String
+  post              BoardPost         @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId          String
+  author            User              @relation(fields: [authorId], references: [id])
+  parentId          String?
+  parent            BoardComment?     @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies           BoardComment[]    @relation("CommentReplies")
+  depth             Int               @default(0)
+  commentLikeCount  Int               @default(0)
+  likes             BoardCommentLike[]
+  createdAt         DateTime          @default(now())
+}
+
+model BoardCommentLike {
+  id        String       @id @default(cuid())
+  commentId String
+  comment   BoardComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime     @default(now())
+
+  @@unique([commentId, userId])
+  @@index([userId])
 }

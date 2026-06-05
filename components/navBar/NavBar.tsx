@@ -19,9 +19,9 @@ export default function NavBar({ session }: { session: Session | null }) {
   return (
     <>
       <div className="flex items-center px-5   bg-white border-b border-[#F0EBE4] sticky top-0 z-40">
-        <div className="flex items-center justify-between w-full">
+        <div className="flex items-center justify-between w-full mt-3">
           <div className="flex items-center gap-4 md:gap-6">
-            <Link href="/board" className="mt-1">
+            <Link href="/board" className="">
               <Image src={Logo} alt="logo" width={80} />
             </Link>
           </div>

@@ -11,6 +11,11 @@ export type BoardPostLikeResult = {
   likeCount: number;
 };
 
+export type BoardCommentLikeResult = {
+  liked: boolean;
+  commentLikeCount: number;
+};
+
 export async function getBoardPosts(category?: string) {
   return prisma.boardPost.findMany({
     where: category ? { category } : undefined,
@@ -296,6 +301,74 @@ export async function updateBoardPost(
 
 export async function deleteBoardPost(id: string) {
   return prisma.boardPost.delete({ where: { id } });
+}
+
+export async function isBoardCommentLikedByUser(
+  commentId: string,
+  userId: string,
+): Promise<boolean> {
+  const like = await prisma.boardCommentLike.findUnique({
+    where: { commentId_userId: { commentId, userId } },
+    select: { id: true },
+  });
+  return like !== null;
+}
+
+export async function getLikedCommentIdsForPost(
+  postId: string,
+  userId: string,
+): Promise<Set<string>> {
+  const likes = await prisma.boardCommentLike.findMany({
+    where: {
+      userId,
+      comment: { postId },
+    },
+    select: { commentId: true },
+  });
+  return new Set(likes.map((l) => l.commentId));
+}
+
+export async function toggleBoardCommentLike(
+  commentId: string,
+  userId: string,
+): Promise<BoardCommentLikeResult> {
+  return prisma.$transaction(async (tx) => {
+    const existing = await tx.boardCommentLike.findUnique({
+      where: { commentId_userId: { commentId, userId } },
+      select: { id: true },
+    });
+
+    if (existing) {
+      await tx.boardCommentLike.delete({ where: { id: existing.id } });
+      const comment = await tx.boardComment.update({
+        where: { id: commentId },
+        data: { commentLikeCount: { decrement: 1 } },
+        select: { commentLikeCount: true },
+      });
+      return { liked: false, commentLikeCount: comment.commentLikeCount };
+    }
+
+    try {
+      await tx.boardCommentLike.create({ data: { commentId, userId } });
+    } catch (error) {
+      if (isUniqueConstraintError(error)) {
+        const comment = await tx.boardComment.findUniqueOrThrow({
+          where: { id: commentId },
+          select: { commentLikeCount: true },
+        });
+        return { liked: true, commentLikeCount: comment.commentLikeCount };
+      }
+      throw error;
+    }
+
+    const comment = await tx.boardComment.update({
+      where: { id: commentId },
+      data: { commentLikeCount: { increment: 1 } },
+      select: { commentLikeCount: true },
+    });
+
+    return { liked: true, commentLikeCount: comment.commentLikeCount };
+  });
 }
 
 export async function createBoardComment({

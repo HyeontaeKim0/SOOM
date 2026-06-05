@@ -95,6 +95,7 @@ function CommentItem({
   depth,
   onDelete,
   onReplyAdded,
+  onLikeUpdated,
 }: {
   comment: BoardComment;
   postId: string;
@@ -103,10 +104,49 @@ function CommentItem({
   depth: number;
   onDelete: (id: string) => void;
   onReplyAdded: (parentId: string, newReply: BoardComment) => void;
+  onLikeUpdated: (
+    commentId: string,
+    liked: boolean,
+    commentLikeCount: number,
+  ) => void;
 }) {
   const isPostAuthor = comment.author.id === postAuthorId;
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [commentLikeCount, setCommentLikeCount] = useState(
+    comment.commentLikeCount,
+  );
+  const [isLiked, setIsLiked] = useState(comment.isLiked ?? false);
+  const [isLikePending, setIsLikePending] = useState(false);
+
+  const handleToggleLike = async () => {
+    if (!currentUserId) return;
+    if (isLikePending) return;
+
+    setIsLikePending(true);
+    try {
+      const res = await fetch(
+        `/api/board/${postId}/comments/${comment.id}/like`,
+        { method: "POST" },
+      );
+      if (res.ok) {
+        const { liked, commentLikeCount: nextCount } = (await res.json()) as {
+          liked: boolean;
+          commentLikeCount: number;
+        };
+        setIsLiked(liked);
+        setCommentLikeCount(nextCount);
+        onLikeUpdated(comment.id, liked, nextCount);
+      } else {
+        const { error } = await res.json();
+        alert(error ?? "좋아요 처리에 실패했습니다.");
+      }
+    } catch {
+      alert("좋아요 처리 중 오류가 발생했습니다.");
+    } finally {
+      setIsLikePending(false);
+    }
+  };
 
   const handleDelete = async () => {
     if (!confirm("댓글을 삭제하시겠습니까?")) return;
@@ -183,6 +223,29 @@ function CommentItem({
             </div>
           </div>
         </div>
+        <button
+          type="button"
+          onClick={handleToggleLike}
+          disabled={!currentUserId || isLikePending}
+          className={`items-center gap-1 text-xs transition-colors disabled:cursor-default ${
+            isLiked
+              ? "text-red-500"
+              : "text-[#8C8478] hover:text-red-400 disabled:hover:text-[#8C8478]"
+          }`}
+          aria-label={isLiked ? "좋아요 취소" : "좋아요"}
+        >
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill={isLiked ? "currentColor" : "none"}
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+          </svg>
+          <span>{commentLikeCount}</span>
+        </button>
       </div>
       {/* 인라인 답글 입력폼 */}
       {showReplyForm && (
@@ -210,6 +273,7 @@ function CommentItem({
               depth={depth + 1}
               onDelete={onDelete}
               onReplyAdded={onReplyAdded}
+              onLikeUpdated={onLikeUpdated}
             />
           ))}
         </ul>
@@ -246,6 +310,28 @@ function addReplyToTree(
   });
 }
 
+function updateCommentLikeInTree(
+  comments: BoardComment[],
+  commentId: string,
+  liked: boolean,
+  commentLikeCount: number,
+): BoardComment[] {
+  return comments.map((c) => {
+    if (c.id === commentId) {
+      return { ...c, isLiked: liked, commentLikeCount };
+    }
+    return {
+      ...c,
+      replies: updateCommentLikeInTree(
+        c.replies ?? [],
+        commentId,
+        liked,
+        commentLikeCount,
+      ),
+    };
+  });
+}
+
 export default function CommentSection({
   postId,
   comments: initialComments,
@@ -273,7 +359,12 @@ export default function CommentSection({
         const newComment = (await res.json()) as BoardComment;
         setComments((prev) => [
           ...prev,
-          { ...newComment, replies: newComment.replies ?? [] },
+          {
+            ...newComment,
+            commentLikeCount: newComment.commentLikeCount ?? 0,
+            isLiked: false,
+            replies: newComment.replies ?? [],
+          },
         ]);
         setContent("");
         router.refresh();
@@ -297,10 +388,22 @@ export default function CommentSection({
     setComments((prev) =>
       addReplyToTree(prev, parentId, {
         ...newReply,
+        commentLikeCount: newReply.commentLikeCount ?? 0,
+        isLiked: false,
         replies: newReply.replies ?? [],
       }),
     );
     router.refresh();
+  };
+
+  const handleLikeUpdated = (
+    commentId: string,
+    liked: boolean,
+    commentLikeCount: number,
+  ) => {
+    setComments((prev) =>
+      updateCommentLikeInTree(prev, commentId, liked, commentLikeCount),
+    );
   };
 
   return (
@@ -376,6 +479,7 @@ export default function CommentSection({
               depth={0}
               onDelete={handleDelete}
               onReplyAdded={handleReplyAdded}
+              onLikeUpdated={handleLikeUpdated}
             />
           ))}
         </ul>

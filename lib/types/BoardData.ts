@@ -23,6 +23,8 @@ export type BoardComment = {
   createdAt: Date | string;
   parentId: string | null;
   depth: number;
+  commentLikeCount: number;
+  isLiked?: boolean;
   author: {
     id: string;
     name: string | null;
