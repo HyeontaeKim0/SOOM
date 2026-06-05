@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import type { Session } from "next-auth";
+import { useSession } from "next-auth/react";
 import { Flame, Clipboard, UserPen } from "lucide-react";
 import SSOModal, { useOverlayState } from "@/components/auth/SSOModal";
 
@@ -34,9 +34,10 @@ const navItems = [
   },
 ];
 
-export default function BottomNav({ session }: { session: Session | null }) {
+export default function BottomNav() {
   const pathname = usePathname();
   const router = useRouter();
+  const { data: session } = useSession();
   const loginModalState = useOverlayState();
 
   const handleProfilePress = () => {

@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { signOutAction } from "@/actions/auth";
-import type { Session } from "next-auth";
 
 import MyProfile from "./component/myProfile/MyProfile";
 import SearchInput from "./component/searchInput/SearchInput";
@@ -12,8 +12,9 @@ import SSOModal, { useOverlayState } from "@/components/auth/SSOModal";
 import Logo from "@/assets/logo/BetaLogo.png";
 import Image from "next/image";
 
-export default function NavBar({ session }: { session: Session | null }) {
+export default function NavBar() {
   const pathname = usePathname();
+  const { data: session } = useSession();
   const loginModalState = useOverlayState();
 
   return (

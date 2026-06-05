@@ -1,12 +1,13 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { auth } from "@/auth";
 import { BOARD_CATEGORY_LABELS } from "@/lib/utils/BoardCategories";
-import { getAnonymousName } from "@/lib/utils/anonymousName";
+import BoardGreeting from "@/components/board/BoardGreeting";
 import CreatePostButton from "@/components/board/createPost/Button";
 import BoardSideFilters from "@/components/board/sideFilters/SideFilters";
 import BoardCard from "@/components/board/boardCard/BoardCard";
 import { getBoardPosts } from "@/lib/services/boardService";
+
+export const revalidate = 30;
 
 export default async function BoardPage({
   searchParams,
@@ -14,7 +15,6 @@ export default async function BoardPage({
   searchParams: Promise<{ category?: string }>;
 }) {
   const { category } = await searchParams;
-  const session = await auth();
 
   const allPosts = await getBoardPosts();
   const filteredPosts = category
@@ -90,16 +90,7 @@ export default async function BoardPage({
               </span>
             </div>
             <span className="text-sm text-text-signature mt-1">
-              {session?.user?.id ? (
-                <>
-                  <span className="text-signature font-bold">
-                    {getAnonymousName(session.user.id)}
-                  </span>{" "}
-                  님, 자유롭게 이야기를 나눠보세요.
-                </>
-              ) : (
-                "자유롭게 이야기를 나눠보세요."
-              )}
+              <BoardGreeting />
             </span>
             <div className="w-full h-px bg-[#E0E0E0] mt-4 mb-2"></div>
           </div>

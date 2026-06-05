@@ -3,6 +3,8 @@ import { Flame } from "lucide-react";
 import BoardCard from "@/components/board/boardCard/BoardCard";
 import { getHotBoardPosts } from "@/lib/services/boardService";
 
+export const revalidate = 30;
+
 export default async function HotPage() {
   const hotPosts = await getHotBoardPosts();
 
