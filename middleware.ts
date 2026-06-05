@@ -1,10 +1,21 @@
-import NextAuth from "next-auth";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-import { authConfig } from "./auth.config";
+import { hasSessionCookie, isPublicRoute } from "@/lib/auth/publicRoutes";
 
-const { auth } = NextAuth(authConfig);
+export default function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
 
-export default auth;
+  if (isPublicRoute(pathname)) {
+    return NextResponse.next();
+  }
+
+  if (!hasSessionCookie(request.cookies)) {
+    return NextResponse.redirect(new URL("/board", request.url));
+  }
+
+  return NextResponse.next();
+}
 
 export const config = {
   matcher: [

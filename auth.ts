@@ -19,7 +19,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   // User / Account 등은 여전히 PostgreSQL에 저장됩니다.
   session: { strategy: "jwt", maxAge: 30 * 24 * 60 * 60 },
   callbacks: {
-    ...authConfig.callbacks,
     jwt({ token, user }) {
       if (user) token.id = user.id;
       return token;
