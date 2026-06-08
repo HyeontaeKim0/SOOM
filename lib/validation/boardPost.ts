@@ -14,8 +14,13 @@ const USER_WRITABLE_CATEGORIES = BOARD_CATEGORIES.filter(
 
 export function validateBoardPostBody(
   body: CreateBoardPostRequest,
+  options?: { allowNotice?: boolean },
 ): string | null {
-  if (!body.category || !USER_WRITABLE_CATEGORIES.includes(body.category)) {
+  const allowedCategories = options?.allowNotice
+    ? BOARD_CATEGORIES
+    : USER_WRITABLE_CATEGORIES;
+
+  if (!body.category || !allowedCategories.includes(body.category)) {
     return "유효하지 않은 카테고리입니다.";
   }
 

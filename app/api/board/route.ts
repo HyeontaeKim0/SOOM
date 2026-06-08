@@ -37,9 +37,20 @@ export async function POST(request: Request) {
   try {
     const body = (await request.json()) as CreateBoardPostRequest;
 
-    const validationError = validateBoardPostBody(body);
+    const isAdmin = session.user.role === "ADMIN";
+
+    const validationError = validateBoardPostBody(body, {
+      allowNotice: isAdmin,
+    });
     if (validationError) {
       return NextResponse.json({ error: validationError }, { status: 400 });
+    }
+
+    if (body.category === "notice" && !isAdmin) {
+      return NextResponse.json(
+        { error: "공지 카테고리는 관리자만 작성할 수 있습니다." },
+        { status: 403 },
+      );
     }
 
     const post = await createBoardPost(
