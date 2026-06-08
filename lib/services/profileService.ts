@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 
-const authorSelect = { id: true, name: true, image: true } as const;
+const authorSelect = { id: true, name: true, image: true, role: true } as const;
 
 export async function getUserBoardPosts(authorId: string) {
   return prisma.boardPost.findMany({

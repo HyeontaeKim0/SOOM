@@ -78,7 +78,7 @@ model Meeting {
   tags            String[]
   filter          String[]
   hostId          String
-  host            User     @relation(fields: [hostId], references: [id])
+  host            User     @relation(fields: [hostId], references: [id], onDelete: Cascade)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
@@ -104,7 +104,7 @@ model BoardPost {
   viewCount    Int            @default(0)
   likeCount    Int            @default(0)
   authorId     String
-  author       User           @relation(fields: [authorId], references: [id])
+  author       User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
   comments     BoardComment[]
   likes        BoardPostLike[]
   views        BoardPostView[]
@@ -143,7 +143,7 @@ model BoardComment {
   postId            String
   post              BoardPost         @relation(fields: [postId], references: [id], onDelete: Cascade)
   authorId          String
-  author            User              @relation(fields: [authorId], references: [id])
+  author            User              @relation(fields: [authorId], references: [id], onDelete: Cascade)
   parentId          String?
   parent            BoardComment?     @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
   replies           BoardComment[]    @relation("CommentReplies")

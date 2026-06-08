@@ -11,6 +11,7 @@ const notificationInclude = {
       post: { select: { title: true } },
     },
   },
+  actor: { select: { role: true } },
 } as const;
 
 function toNotificationItem(
@@ -23,6 +24,7 @@ function toNotificationItem(
     readAt: Date | null;
     createdAt: Date;
     comment: { content: string; post: { title: string } };
+    actor: { role: "USER" | "ADMIN" };
   },
 ): NotificationItem {
   return {
@@ -33,6 +35,7 @@ function toNotificationItem(
     postTitle: notification.comment.post.title,
     commentPreview: notification.comment.content,
     actorId: notification.actorId,
+    actorRole: notification.actor.role,
     readAt: notification.readAt?.toISOString() ?? null,
     createdAt: notification.createdAt.toISOString(),
   };

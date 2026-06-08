@@ -12,6 +12,7 @@ export type BoardPost = {
     id: string;
     name: string | null;
     image: string | null;
+    role: "USER" | "ADMIN";
   };
   _count: {
     comments: number;
@@ -30,6 +31,7 @@ export type BoardComment = {
     id: string;
     name: string | null;
     image: string | null;
+    role: "USER" | "ADMIN";
   };
   replies: BoardComment[];
 };
@@ -49,6 +51,7 @@ export type BoardPostDetail = {
     id: string;
     name: string | null;
     image: string | null;
+    role: "USER" | "ADMIN";
   };
   comments: BoardComment[];
 };

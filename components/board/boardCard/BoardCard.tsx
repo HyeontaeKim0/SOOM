@@ -1,5 +1,5 @@
 import { BOARD_CATEGORY_LABELS } from "@/lib/utils/BoardCategories";
-import { getAnonymousName } from "@/lib/utils/anonymousName";
+import { getDisplayName } from "@/lib/utils/anonymousName";
 import type { BoardPost } from "@/lib/types/BoardData";
 import formatRelativeTime from "@/lib/utils/FormatRelativeTime";
 
@@ -52,7 +52,10 @@ export default function BoardCard({
       <div className="flex items-center justify-between text-xs text-[#8C8478] border-t border-gray-50 pt-3">
         <div className="flex items-center gap-2">
           <span className="font-semibold text-[#6B6358]">
-            {getAnonymousName(post.author.id)}
+            {getDisplayName({
+              userId: post.author.id,
+              role: post.author.role,
+            })}
           </span>
           <span>·</span>
           <span>{formatRelativeTime(post.createdAt)}</span>

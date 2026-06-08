@@ -8,7 +8,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Bell } from "lucide-react";
 
-import { getAnonymousName } from "@/lib/utils/anonymousName";
+import { getDisplayName } from "@/lib/utils/anonymousName";
 import type { NotificationItem } from "@/lib/types/NotificationData";
 import {
   useMarkNotificationsReadMutation,
@@ -17,17 +17,17 @@ import {
 import NotificationList from "@/components/navBar/component/myProfile/notificationList/NotificationList";
 import DefaultImg from "@/assets/login/DefaultImg.png";
 
+import { MessageCircleMore } from "lucide-react";
+
 export default function MyProfile({ session }: { session: Session }) {
   const router = useRouter();
   const drawerState = useOverlayState();
-  const anonymousName = getAnonymousName(session.user?.id || "");
+  const displayName = getDisplayName({
+    userId: session.user?.id || "",
+    role: session.user?.role,
+  });
 
-  const {
-    data,
-    isPending,
-    isError,
-    refetch,
-  } = useNotificationsQuery();
+  const { data, isPending, isError, refetch } = useNotificationsQuery();
   const markReadMutation = useMarkNotificationsReadMutation();
 
   const notifications = data?.notifications ?? [];
@@ -72,16 +72,19 @@ export default function MyProfile({ session }: { session: Session }) {
           <Image
             src={DefaultImg}
             alt="profile"
-            width={28}
-            height={28}
+            width={30}
+            height={30}
             className="rounded-full"
           />
-          <span className="hidden md:block text-sm font-semibold text-[#2A241D]">
-            {anonymousName}
-          </span>
+          {/* <span className="hidden md:block text-sm font-semibold text-[#2A241D]">
+            {displayName}
+          </span> */}
         </div>
         {unreadCount > 0 && (
-          <span aria-hidden className="w-1.5 h-1.5 rounded-full bg-red-500" />
+          <span
+            aria-hidden
+            className="w-2 h-2 relative top-[-35px] left-[14px] rounded-full bg-red-500 flex items-center justify-center"
+          ></span>
         )}
       </Button>
 
@@ -101,7 +104,7 @@ export default function MyProfile({ session }: { session: Session }) {
                   />
                   <div className="flex flex-col">
                     <span className="text-base font-bold text-[#2A241D]">
-                      {anonymousName}
+                      {displayName}
                     </span>
                     <span className="text-xs text-[#8C8478]">
                       {session.user?.email}
@@ -158,7 +161,7 @@ export default function MyProfile({ session }: { session: Session }) {
                 <Button
                   slot="close"
                   variant="secondary"
-                  className="w-full justify-start px-4 py-3 rounded-xl text-sm font-semibold text-[#2A241D] bg-[#F5F0EB] hover:bg-[#EDE8E0]"
+                  className="w-full justify-start px-4 py-3 rounded-3xl text-sm font-semibold text-[#2A241D] bg-[#F5F0EB] hover:bg-[#EDE8E0]"
                   onPress={() => router.push("/profile")}
                 >
                   마이페이지

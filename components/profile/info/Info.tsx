@@ -1,14 +1,16 @@
 import Image from "next/image";
 import DefaultImg from "@/assets/login/DefaultImg.png";
-import { getAnonymousName } from "@/lib/utils/anonymousName";
+import type { Role } from "@prisma/client";
+import { getDisplayName } from "@/lib/utils/anonymousName";
 
 type ProfileInfoProps = {
   userId: string;
   email: string | null | undefined;
+  role?: Role;
 };
 
-export default function Info({ userId, email }: ProfileInfoProps) {
-  const anonymousName = getAnonymousName(userId);
+export default function Info({ userId, email, role }: ProfileInfoProps) {
+  const displayName = getDisplayName({ userId, role });
 
   return (
     <section className="flex flex-col gap-4 rounded-2xl bg-white border border-gray-100 shadow-sm px-6 py-6 w-full">
@@ -23,7 +25,7 @@ export default function Info({ userId, email }: ProfileInfoProps) {
         />
         <div className="flex flex-col gap-1 min-w-0">
           <span className="text-lg font-bold text-[#2A241D]">
-            {anonymousName}
+            {displayName}
           </span>
           <span className="text-sm text-[#8C8478] truncate">
             {email ?? "이메일 정보 없음"}

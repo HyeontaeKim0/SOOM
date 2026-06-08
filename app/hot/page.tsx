@@ -2,8 +2,17 @@ import Link from "next/link";
 import { Flame } from "lucide-react";
 import BoardCard from "@/components/board/boardCard/BoardCard";
 import { getHotBoardPosts } from "@/lib/services/boardService";
+import type { Metadata } from "next";
 
 export const revalidate = 30;
+
+export const metadata: Metadata = {
+  title: "인기 게시물",
+  description: "오늘 가장 많이 읽힌 커뮤니티 게시글을 확인하세요.",
+  alternates: {
+    canonical: "/hot",
+  },
+};
 
 export default async function HotPage() {
   const hotPosts = await getHotBoardPosts();

@@ -6,8 +6,18 @@ import CreatePostButton from "@/components/board/createPost/Button";
 import BoardSideFilters from "@/components/board/sideFilters/SideFilters";
 import BoardCard from "@/components/board/boardCard/BoardCard";
 import { getBoardPosts } from "@/lib/services/boardService";
+import type { Metadata } from "next";
 
 export const revalidate = 30;
+
+export const metadata: Metadata = {
+  title: "게시판",
+  description:
+    "자유, 질문, 후기, 정보 카테고리의 20-30대 커뮤니티 게시판입니다.",
+  alternates: {
+    canonical: "/board",
+  },
+};
 
 export default async function BoardPage({
   searchParams,

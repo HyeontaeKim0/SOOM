@@ -12,6 +12,35 @@ import BoardDetailClient from "@/components/board/boardDetail/BoardDetailClient"
 import CommentSection from "@/components/board/boardDetail/CommentSection";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const post = await getBoardPostById(id);
+
+  if (!post) {
+    return { title: "게시글" };
+  }
+
+  const description = post.content.replace(/\s+/g, " ").trim().slice(0, 150);
+
+  return {
+    title: post.title,
+    description,
+    alternates: {
+      canonical: `/board/${id}`,
+    },
+    openGraph: {
+      title: post.title,
+      description,
+      type: "article",
+    },
+  };
+}
 
 export default async function BoardDetailPage({
   params,

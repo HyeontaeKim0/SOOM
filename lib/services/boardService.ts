@@ -25,7 +25,7 @@ export async function getBoardPosts(category?: string) {
     where: category ? { category } : undefined,
     orderBy: { createdAt: "desc" },
     include: {
-      author: { select: { id: true, name: true, image: true } },
+      author: { select: authorSelect },
       _count: { select: { comments: true } },
     },
   });
@@ -56,7 +56,7 @@ export async function getHotBoardPosts(limit = 50): Promise<HotBoardPost[]> {
   const posts = await prisma.boardPost.findMany({
     where: { id: { in: postIds } },
     include: {
-      author: { select: { id: true, name: true, image: true } },
+      author: { select: authorSelect },
       _count: { select: { comments: true } },
     },
   });
@@ -73,7 +73,7 @@ export async function getHotBoardPosts(limit = 50): Promise<HotBoardPost[]> {
   });
 }
 
-const authorSelect = { id: true, name: true, image: true } as const;
+const authorSelect = { id: true, name: true, image: true, role: true } as const;
 
 export type BoardPostViewResult = {
   counted: boolean;
@@ -338,7 +338,7 @@ export async function updateBoardPost(
       tags: data.tags ?? [],
     },
     include: {
-      author: { select: { id: true, name: true, image: true } },
+      author: { select: authorSelect },
     },
   });
 }

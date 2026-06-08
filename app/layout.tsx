@@ -6,7 +6,11 @@ import BottomNav from "@/components/navBar/BottomNav";
 import { AuthSessionProvider } from "@/components/auth/session-provider";
 import { QueryProvider } from "@/components/providers/query-provider";
 import titleLogo from "@/assets/logo/TitleLogo.png";
+import { getSiteUrl } from "@/lib/utils/siteUrl";
 import "./globals.css";
+
+const SITE_DESCRIPTION =
+  "20-30대 라이프스테이지 기반 커뮤니티. 게시판, 모임, 인기 글을 통해 결이 맞는 사람들과 연결하세요.";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,11 +23,31 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SOOM",
+  metadataBase: new URL(getSiteUrl()),
+  title: {
+    default: "SOOM",
+    template: "%s | SOOM",
+  },
   icons: {
     icon: titleLogo.src,
   },
-  description: "익명 커뮤니티",
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    type: "website",
+    locale: "ko_KR",
+    siteName: "SOOM",
+    title: "SOOM",
+    description: SITE_DESCRIPTION,
+  },
+  twitter: {
+    card: "summary",
+    title: "SOOM",
+    description: SITE_DESCRIPTION,
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export const viewport: Viewport = {

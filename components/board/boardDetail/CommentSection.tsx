@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { getAnonymousName } from "@/lib/utils/anonymousName";
+import { getDisplayName } from "@/lib/utils/anonymousName";
 import type { BoardComment } from "@/lib/types/BoardData";
 import SSOModal, { useOverlayState } from "@/components/auth/SSOModal";
 import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
@@ -188,7 +188,10 @@ function CommentItem({
           <div className="flex flex-col justify-between">
             <div className="flex items-center gap-1.5">
               <span className="text-xs font-semibold text-[#4A4A4A]">
-                {getAnonymousName(comment.author.id)}
+                {getDisplayName({
+                  userId: comment.author.id,
+                  role: comment.author.role,
+                })}
               </span>
               {isPostAuthor && (
                 <span className="text-[10px] font-semibold text-signature">

@@ -26,7 +26,11 @@ export default async function ProfilePage() {
           </h1>
         </div>
 
-        <Info userId={userId} email={session.user?.email} />
+        <Info
+          userId={userId}
+          email={session.user?.email}
+          role={session.user.role}
+        />
 
         <ProfileActivityTabs
           posts={posts}
