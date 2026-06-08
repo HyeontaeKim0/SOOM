@@ -4,6 +4,7 @@ import NavBar from "@/components/navBar/NavBar";
 import BottomNav from "@/components/navBar/BottomNav";
 
 import { AuthSessionProvider } from "@/components/auth/session-provider";
+import { QueryProvider } from "@/components/providers/query-provider";
 import titleLogo from "@/assets/logo/TitleLogo.png";
 import "./globals.css";
 
@@ -44,9 +45,11 @@ export default async function RootLayout({
     >
       <body className="flex min-h-full flex-col bg-[#FBF7F3] pb-16 md:pb-0">
         <AuthSessionProvider>
-          <NavBar />
-          {children}
-          <BottomNav />
+          <QueryProvider>
+            <NavBar />
+            {children}
+            <BottomNav />
+          </QueryProvider>
         </AuthSessionProvider>
       </body>
     </html>

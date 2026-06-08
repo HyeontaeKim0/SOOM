@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect } from "react";
 import type { Session } from "next-auth";
 import { signOut } from "next-auth/react";
 import { Drawer, Button, useOverlayState } from "@heroui/react";
@@ -10,94 +10,37 @@ import { Bell } from "lucide-react";
 
 import { getAnonymousName } from "@/lib/utils/anonymousName";
 import type { NotificationItem } from "@/lib/types/NotificationData";
+import {
+  useMarkNotificationsReadMutation,
+  useNotificationsQuery,
+} from "@/lib/queries/notifications";
 import NotificationList from "@/components/navBar/component/myProfile/notificationList/NotificationList";
 import DefaultImg from "@/assets/login/DefaultImg.png";
-
-const NOTIFICATION_POLL_INTERVAL_MS = 15_000;
 
 export default function MyProfile({ session }: { session: Session }) {
   const router = useRouter();
   const drawerState = useOverlayState();
   const anonymousName = getAnonymousName(session.user?.id || "");
-  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [isLoading, setIsLoading] = useState(false);
 
-  const fetchNotifications = useCallback(
-    async (options?: { silent?: boolean }) => {
-      if (!options?.silent) {
-        setIsLoading(true);
-      }
+  const {
+    data,
+    isPending,
+    isError,
+    refetch,
+  } = useNotificationsQuery();
+  const markReadMutation = useMarkNotificationsReadMutation();
 
-      try {
-        const res = await fetch("/api/notifications");
-        if (!res.ok) return;
-
-        const data = (await res.json()) as {
-          notifications: NotificationItem[];
-          unreadCount: number;
-        };
-        setNotifications(data.notifications);
-        setUnreadCount(data.unreadCount);
-      } finally {
-        if (!options?.silent) {
-          setIsLoading(false);
-        }
-      }
-    },
-    [],
-  );
-
-  useEffect(() => {
-    fetchNotifications();
-  }, [fetchNotifications]);
+  const notifications = data?.notifications ?? [];
+  const unreadCount = data?.unreadCount ?? 0;
 
   useEffect(() => {
     if (drawerState.isOpen) {
-      fetchNotifications();
+      void refetch();
     }
-  }, [drawerState.isOpen, fetchNotifications]);
+  }, [drawerState.isOpen, refetch]);
 
-  useEffect(() => {
-    const poll = () => {
-      if (document.visibilityState === "visible") {
-        fetchNotifications({ silent: true });
-      }
-    };
-
-    const intervalId = window.setInterval(poll, NOTIFICATION_POLL_INTERVAL_MS);
-
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible") {
-        fetchNotifications({ silent: true });
-      }
-    };
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-
-    return () => {
-      window.clearInterval(intervalId);
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
-  }, [fetchNotifications]);
-
-  const handleMarkAllRead = async () => {
-    const res = await fetch("/api/notifications", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ markAll: true }),
-    });
-
-    if (!res.ok) return;
-
-    const data = (await res.json()) as { unreadCount: number };
-    setUnreadCount(data.unreadCount);
-    setNotifications((prev) =>
-      prev.map((notification) => ({
-        ...notification,
-        readAt: notification.readAt ?? new Date().toISOString(),
-      })),
-    );
+  const handleMarkAllRead = () => {
+    markReadMutation.mutate({ markAll: true });
   };
 
   const handleSignOut = () => {
@@ -106,24 +49,10 @@ export default function MyProfile({ session }: { session: Session }) {
   };
 
   const handleNotificationClick = async (notification: NotificationItem) => {
-    if (!notification.readAt) {
-      const res = await fetch("/api/notifications", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ids: [notification.id] }),
-      });
-
-      if (res.ok) {
-        const data = (await res.json()) as { unreadCount: number };
-        setUnreadCount(data.unreadCount);
-        setNotifications((prev) =>
-          prev.map((item) =>
-            item.id === notification.id
-              ? { ...item, readAt: new Date().toISOString() }
-              : item,
-          ),
-        );
-      }
+    try {
+      await markReadMutation.mutateAsync({ ids: [notification.id] });
+    } catch {
+      return;
     }
 
     drawerState.close();
@@ -191,16 +120,23 @@ export default function MyProfile({ session }: { session: Session }) {
                       size="sm"
                       className="text-xs font-semibold text-[#6B6358] bg-[#F5F0EB]"
                       onPress={handleMarkAllRead}
+                      isDisabled={markReadMutation.isPending}
                     >
                       모두 읽음
                     </Button>
                   </div>
                 )}
 
-                {isLoading && notifications.length === 0 ? (
+                {isPending && notifications.length === 0 ? (
                   <div className="flex flex-1 items-center justify-center">
                     <p className="text-sm text-center text-[#8C8478]">
                       알림을 불러오는 중...
+                    </p>
+                  </div>
+                ) : isError ? (
+                  <div className="flex flex-1 flex-col items-center justify-center text-[#8C8478]">
+                    <p className="text-sm font-semibold">
+                      알림을 불러오지 못했어요
                     </p>
                   </div>
                 ) : notifications.length === 0 ? (

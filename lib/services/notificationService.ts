@@ -97,7 +97,7 @@ export async function getNotificationsForUser(
   limit = 30,
 ): Promise<NotificationItem[]> {
   const notifications = await getPrisma().notification.findMany({
-    where: { userId },
+    where: { userId, readAt: null },
     orderBy: { createdAt: "desc" },
     take: limit,
     include: notificationInclude,
