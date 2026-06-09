@@ -3,6 +3,9 @@ import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
 import { getSiteUrl } from "@/lib/utils/siteUrl";
 
+// 1시간마다 DB를 다시 조회해 sitemap을 갱신 (재배포 없이 새 글 자동 반영)
+export const revalidate = 3600;
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = getSiteUrl();
 
