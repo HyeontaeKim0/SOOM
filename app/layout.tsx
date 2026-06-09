@@ -48,9 +48,10 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
-  verification: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
-    ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }
-    : undefined,
+  verification: {
+    // 구글 서치콘솔 소유권 확인 토큰 (공개 값 — HTML에 그대로 노출되는 식별자)
+    google: "DkO8dCaDmpCVBJRENNM1akxaBU8G8ORSvUW3FMa175U",
+  },
 };
 
 export const viewport: Viewport = {
