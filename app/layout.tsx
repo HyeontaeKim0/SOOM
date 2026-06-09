@@ -25,8 +25,8 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
   title: {
-    default: "잠깐 앉는 계단 - SOOM",
-    template: "SOOM",
+    default: "숨 돌리는 곳 - SOOM",
+    template: "숨 돌리는 곳 - SOOM",
   },
   icons: {
     icon: titleLogo.src,
@@ -36,12 +36,12 @@ export const metadata: Metadata = {
     type: "website",
     locale: "ko_KR",
     siteName: "SOOM",
-    title: "잠깐 앉는 계단 - SOOM",
+    title: "숨 돌리는 곳 - SOOM",
     description: SITE_DESCRIPTION,
   },
   twitter: {
     card: "summary",
-    title: "잠깐 앉는 계단 - SOOM",
+    title: "숨 돌리는 곳 - SOOM",
     description: SITE_DESCRIPTION,
   },
   robots: {
