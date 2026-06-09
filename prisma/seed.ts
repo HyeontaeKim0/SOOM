@@ -4,27 +4,27 @@ const prisma = new PrismaClient();
 
 const SEED_USERS = [
   {
-    email: "seed-user-1@unnieside.internal",
+    email: "seed-user-1@soom.internal",
     nickname: "새벽러너지은",
     bio: "워킹맘 · 새벽 러닝이 유일한 나만의 시간",
   },
   {
-    email: "seed-user-2@unnieside.internal",
+    email: "seed-user-2@soom.internal",
     nickname: "혼행러민지",
     bio: "30대 비혼 · 혼자 여행 좋아해요",
   },
   {
-    email: "seed-user-3@unnieside.internal",
+    email: "seed-user-3@soom.internal",
     nickname: "커피앤북",
     bio: "주말엔 카페에서 책 읽기",
   },
   {
-    email: "seed-user-4@unnieside.internal",
+    email: "seed-user-4@soom.internal",
     nickname: "이직준비중",
     bio: "마케터 7년차 · 다음 커리어 고민 중",
   },
   {
-    email: "seed-user-5@unnieside.internal",
+    email: "seed-user-5@soom.internal",
     nickname: "주말요리사",
     bio: "1인 가구 · 집밥이 최고의 취미",
   },
@@ -43,7 +43,7 @@ type SeedPost = {
 
 const SEED_POSTS: SeedPost[] = [
   {
-    authorEmail: "seed-user-1@unnieside.internal",
+    authorEmail: "seed-user-1@soom.internal",
     category: "free",
     title: "새벽 6시 러닝 시작한 지 3주 됐어요",
     content:
@@ -54,7 +54,7 @@ const SEED_POSTS: SeedPost[] = [
     likeCount: 5,
   },
   {
-    authorEmail: "seed-user-1@unnieside.internal",
+    authorEmail: "seed-user-1@soom.internal",
     category: "question",
     title: "직장인 러닝 크루 추천 부탁드려요",
     content:
@@ -65,7 +65,7 @@ const SEED_POSTS: SeedPost[] = [
     likeCount: 2,
   },
   {
-    authorEmail: "seed-user-2@unnieside.internal",
+    authorEmail: "seed-user-2@soom.internal",
     category: "review",
     title: "제주 혼행 3박4일 후기 (비혼 30대 기준)",
     content:
@@ -76,7 +76,7 @@ const SEED_POSTS: SeedPost[] = [
     likeCount: 11,
   },
   {
-    authorEmail: "seed-user-2@unnieside.internal",
+    authorEmail: "seed-user-2@soom.internal",
     category: "free",
     title: "친구 결혼식 다녀온 날의 기분",
     content:
@@ -87,7 +87,7 @@ const SEED_POSTS: SeedPost[] = [
     likeCount: 8,
   },
   {
-    authorEmail: "seed-user-3@unnieside.internal",
+    authorEmail: "seed-user-3@soom.internal",
     category: "info",
     title: "서울 독서하기 좋은 카페 3곳",
     content:
@@ -98,7 +98,7 @@ const SEED_POSTS: SeedPost[] = [
     likeCount: 14,
   },
   {
-    authorEmail: "seed-user-3@unnieside.internal",
+    authorEmail: "seed-user-3@soom.internal",
     category: "question",
     title: "한 달에 책 한 권 읽기, 현실적으로 가능할까요?",
     content:
@@ -109,7 +109,7 @@ const SEED_POSTS: SeedPost[] = [
     likeCount: 4,
   },
   {
-    authorEmail: "seed-user-4@unnieside.internal",
+    authorEmail: "seed-user-4@soom.internal",
     category: "free",
     title: "7년차 마케터, 이직 고민 중입니다",
     content:
@@ -120,7 +120,7 @@ const SEED_POSTS: SeedPost[] = [
     likeCount: 7,
   },
   {
-    authorEmail: "seed-user-4@unnieside.internal",
+    authorEmail: "seed-user-4@soom.internal",
     category: "info",
     title: "이직 준비할 때 도움 됐던 것들",
     content:
@@ -131,7 +131,7 @@ const SEED_POSTS: SeedPost[] = [
     likeCount: 9,
   },
   {
-    authorEmail: "seed-user-5@unnieside.internal",
+    authorEmail: "seed-user-5@soom.internal",
     category: "free",
     title: "1인 가구 밀프렙 첫 도전",
     content:
@@ -142,7 +142,7 @@ const SEED_POSTS: SeedPost[] = [
     likeCount: 6,
   },
   {
-    authorEmail: "seed-user-5@unnieside.internal",
+    authorEmail: "seed-user-5@soom.internal",
     category: "review",
     title: "주말 글쓰기 모임 4주 다녀왔어요",
     content:
@@ -153,7 +153,7 @@ const SEED_POSTS: SeedPost[] = [
     likeCount: 10,
   },
   {
-    authorEmail: "seed-user-1@unnieside.internal",
+    authorEmail: "seed-user-1@soom.internal",
     category: "info",
     title: "워킹맘을 위한 짧은 자기시간 아이디어",
     content:
@@ -164,7 +164,7 @@ const SEED_POSTS: SeedPost[] = [
     likeCount: 5,
   },
   {
-    authorEmail: "seed-user-3@unnieside.internal",
+    authorEmail: "seed-user-3@soom.internal",
     category: "free",
     title: "금요일 저녁, 혼자 영화 보는 게 최고",
     content:
@@ -175,7 +175,7 @@ const SEED_POSTS: SeedPost[] = [
     likeCount: 3,
   },
   {
-    authorEmail: "seed-user-2@unnieside.internal",
+    authorEmail: "seed-user-2@soom.internal",
     category: "question",
     title: "30대 비혼 모임, 처음 참여할 때 팁 있을까요?",
     content:
@@ -186,7 +186,7 @@ const SEED_POSTS: SeedPost[] = [
     likeCount: 2,
   },
   {
-    authorEmail: "seed-user-4@unnieside.internal",
+    authorEmail: "seed-user-4@soom.internal",
     category: "question",
     title: "스터디 모임 vs 라운드테이블, 어떤 게 나을까요?",
     content:
@@ -197,7 +197,7 @@ const SEED_POSTS: SeedPost[] = [
     likeCount: 1,
   },
   {
-    authorEmail: "seed-user-5@unnieside.internal",
+    authorEmail: "seed-user-5@soom.internal",
     category: "info",
     title: "집들이 대신 '브런치 초대' 어떠세요?",
     content:

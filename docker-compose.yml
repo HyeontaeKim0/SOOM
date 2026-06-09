@@ -1,14 +1,14 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: unnie-side-postgres
+    container_name: soom-postgres
     restart: unless-stopped
     ports:
       - "5431:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: unnie_side
+      POSTGRES_DB: soom
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
