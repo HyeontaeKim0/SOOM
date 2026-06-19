@@ -102,6 +102,9 @@ export default function PostImagePicker({
           (최대 {BOARD_POST_IMAGES_MAX}장, JPG/PNG/WEBP, 5MB 이하)
         </span>
       </label>
+      <p className="text-xs text-[#8C8478]">
+        갤러리가 보이지 않으면 「파일」에서 사진을 선택해 주세요.
+      </p>
 
       <div className="flex flex-wrap gap-3">
         {images.map((image, index) => (
@@ -165,7 +168,7 @@ export default function PostImagePicker({
       <input
         ref={inputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp"
+        accept="image/*"
         multiple
         className="hidden"
         onChange={handleFileChange}
