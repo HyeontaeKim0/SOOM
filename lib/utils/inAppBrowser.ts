@@ -30,37 +30,3 @@ export function getInAppBrowserName(userAgent = ""): string | null {
   if (isInAppBrowser(userAgent)) return "앱";
   return null;
 }
-
-/**
- * 인앱 브라우저에서 외부 브라우저로 열기를 시도합니다.
- * OS·앱 정책상 100% 보장되지 않으며, 사용자 탭(클릭)이 필요합니다.
- */
-export async function openInExternalBrowser(
-  url = typeof window !== "undefined" ? window.location.href : "",
-): Promise<"opened" | "copied"> {
-  const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
-
-  if (/Android/i.test(ua)) {
-    const path = url.replace(/^https?:\/\//, "");
-    const fallback = encodeURIComponent(url);
-    window.location.href = `intent://${path}#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=${fallback};end`;
-    return "opened";
-  }
-
-  if (/iPhone|iPad|iPod/i.test(ua)) {
-    const safariUrl = url.replace(/^https:\/\//, "x-safari-https://");
-    window.location.href = safariUrl;
-    return "opened";
-  }
-
-  window.open(url, "_blank", "noopener,noreferrer");
-  return "opened";
-}
-
-export async function copyCurrentUrl(): Promise<void> {
-  if (typeof window === "undefined" || !navigator.clipboard) {
-    return;
-  }
-
-  await navigator.clipboard.writeText(window.location.href);
-}

@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import NavBar from "@/components/navBar/NavBar";
 import BottomNav from "@/components/navBar/BottomNav";
-import InAppBrowserBanner from "@/components/common/InAppBrowserBanner";
+import InAppBrowserNotice from "@/components/common/InAppBrowserNotice";
 
 import { AuthSessionProvider } from "@/components/auth/session-provider";
 import { QueryProvider } from "@/components/providers/query-provider";
@@ -76,7 +76,7 @@ export default async function RootLayout({
         <AuthSessionProvider>
           <QueryProvider>
             <NavBar />
-            <InAppBrowserBanner />
+            <InAppBrowserNotice />
             {children}
             <BottomNav />
           </QueryProvider>
