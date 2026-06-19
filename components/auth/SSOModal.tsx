@@ -4,10 +4,7 @@ import { Modal, useOverlayState } from "@heroui/react";
 import type { UseOverlayStateReturn } from "@heroui/react";
 import { signIn } from "next-auth/react";
 import Image from "next/image";
-import {
-  getInAppBrowserName,
-  isInAppBrowser,
-} from "@/lib/utils/inAppBrowser";
+import { isInAppBrowser } from "@/lib/utils/inAppBrowser";
 
 import Logo from "@/assets/logo/BetaLogo.png";
 
@@ -21,7 +18,6 @@ interface SSOModalProps {
 export default function SSOModal({ state }: SSOModalProps) {
   const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
   const inAppBrowser = isInAppBrowser(ua);
-  const appName = getInAppBrowserName(ua);
 
   const handleGoogleSignIn = () => {
     signIn("google", { callbackUrl: "/board" });
@@ -48,8 +44,8 @@ export default function SSOModal({ state }: SSOModalProps) {
                 </p>
                 {inAppBrowser && (
                   <p className="mt-2 text-xs leading-relaxed text-[#8C8478]">
-                    {appName ? `${appName} 앱` : "앱"} 내 브라우저에서는 Google
-                    로그인이 차단될 수 있어요. Safari·Chrome에서 열어주세요.
+                    어플 내부 브라우저에서는 Google 로그인이 차단될 수 있어요.
+                    외부 브라우저에서 열어주세요.
                   </p>
                 )}
               </div>
