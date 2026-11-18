@@ -6,6 +6,7 @@ import {
   deleteBoardPost,
 } from "@/lib/services/boardService";
 import type { CreateBoardPostRequest } from "@/lib/types/BoardData";
+import { presentBoardPost } from "@/lib/utils/boardPresenter";
 import {
   normalizeBoardPostBody,
   validateBoardPostBody,
@@ -49,7 +50,7 @@ export async function PATCH(
     }
 
     const updated = await updateBoardPost(id, normalizeBoardPostBody(body));
-    return NextResponse.json(updated);
+    return NextResponse.json(presentBoardPost(updated, session.user.id));
   } catch {
     return NextResponse.json(
       { error: "게시글 수정에 실패했습니다." },

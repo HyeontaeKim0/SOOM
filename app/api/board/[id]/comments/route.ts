@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { createBoardComment } from "@/lib/services/boardService";
+import {
+  createBoardComment,
+  getBoardPostAuthorId,
+} from "@/lib/services/boardService";
+import { presentBoardComments } from "@/lib/utils/boardPresenter";
 import { createCommentNotifications } from "@/lib/services/notificationService";
 
 // POST /api/board/[id]/comments
@@ -54,7 +58,14 @@ export async function POST(
       console.error("댓글 알림 생성 실패:", notificationError);
     }
 
-    return NextResponse.json(comment, { status: 201 });
+    const postAuthorId = await getBoardPostAuthorId(postId);
+    const [presented] = presentBoardComments([comment], {
+      viewerId: session.user.id,
+      postAuthorId: postAuthorId ?? "",
+      likedIds: new Set<string>(),
+    });
+
+    return NextResponse.json(presented, { status: 201 });
   } catch (error) {
     console.error("댓글 작성 실패:", error);
     return NextResponse.json(

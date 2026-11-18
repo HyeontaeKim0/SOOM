@@ -3,7 +3,6 @@
 import { useState, useEffect, KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
 import { BOARD_CATEGORY_LABELS } from "@/lib/utils/BoardCategories";
-import { getDisplayName } from "@/lib/utils/anonymousName";
 import type { BoardPostDetail } from "@/lib/types/BoardData";
 import Image from "next/image";
 import DefaultProfile from "@/assets/login/DefaultImg.png";
@@ -35,7 +34,7 @@ export default function BoardDetailClient({
 }: BoardDetailClientProps) {
   const router = useRouter();
   const deleteModalState = useOverlayState();
-  const isAuthor = currentUserId === post.author.id;
+  const isAuthor = post.isMine;
 
   const [viewCount, setViewCount] = useState(post.viewCount);
   const [likeCount, setLikeCount] = useState(post.likeCount);
@@ -229,10 +228,7 @@ export default function BoardDetailClient({
               className="rounded-full"
             />
             <span className="font-semibold text-[#6B6358]">
-              {getDisplayName({
-                userId: post.author.id,
-                role: post.author.role,
-              })}
+              {post.author.displayName}
             </span>
             <span>·</span>
             <span>{formatDate(post.createdAt)}</span>

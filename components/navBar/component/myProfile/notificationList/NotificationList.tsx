@@ -2,7 +2,6 @@
 
 import { MessageCircle, Reply } from "lucide-react";
 
-import { getDisplayName } from "@/lib/utils/anonymousName";
 import type { NotificationItem } from "@/lib/types/NotificationData";
 import formatRelativeTime from "@/lib/utils/FormatRelativeTime";
 
@@ -20,10 +19,7 @@ function NotificationListItem({
 }) {
   const isUnread = !notification.readAt;
   const isReply = notification.type === "COMMENT_REPLY";
-  const actorName = getDisplayName({
-    userId: notification.actorId,
-    role: notification.actorRole,
-  });
+  const actorName = notification.actorName;
   const Icon = isReply ? Reply : MessageCircle;
 
   return (

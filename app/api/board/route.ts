@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { getBoardPosts, createBoardPost } from "@/lib/services/boardService";
 import type { CreateBoardPostRequest } from "@/lib/types/BoardData";
+import { presentBoardPosts } from "@/lib/utils/boardPresenter";
 import {
   normalizeBoardPostBody,
   validateBoardPostBody,
@@ -14,7 +15,7 @@ export async function GET(request: Request) {
 
   try {
     const posts = await getBoardPosts(category);
-    return NextResponse.json(posts);
+    return NextResponse.json(presentBoardPosts(posts));
   } catch {
     return NextResponse.json(
       { error: "게시글 목록을 불러오지 못했습니다." },

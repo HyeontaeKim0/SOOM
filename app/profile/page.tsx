@@ -6,6 +6,7 @@ import {
   getUserBoardComments,
   getUserLikedPosts,
 } from "@/lib/services/profileService";
+import { presentBoardPosts } from "@/lib/utils/boardPresenter";
 
 export default async function ProfilePage() {
   const session = await requireUser();
@@ -33,9 +34,14 @@ export default async function ProfilePage() {
         />
 
         <ProfileActivityTabs
-          posts={posts}
-          comments={comments}
-          likedPosts={likedPosts}
+          posts={presentBoardPosts(posts, userId)}
+          comments={comments.map(({ id, content, createdAt, post }) => ({
+            id,
+            content,
+            createdAt,
+            post,
+          }))}
+          likedPosts={presentBoardPosts(likedPosts, userId)}
         />
       </div>
     </div>

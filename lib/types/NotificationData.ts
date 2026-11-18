@@ -7,8 +7,7 @@ export type NotificationItem = {
   commentId: string;
   postTitle: string;
   commentPreview: string;
-  actorId: string;
-  actorRole: "USER" | "ADMIN";
+  actorName: string;
   readAt: string | null;
   createdAt: string;
 };

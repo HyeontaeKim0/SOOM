@@ -1,3 +1,10 @@
+// 익명 게시판: 클라이언트로 내려가는 작성자 정보는 표시 이름과 역할만 포함한다.
+// (id, authorId 등 계정을 식별할 수 있는 값은 서버에서 변환 후 제거한다)
+export type PublicAuthor = {
+  displayName: string;
+  role: "USER" | "ADMIN";
+};
+
 export type BoardPost = {
   id: string;
   category: string;
@@ -8,10 +15,8 @@ export type BoardPost = {
   viewCount: number;
   likeCount: number;
   createdAt: Date | string;
-  author: {
-    id: string;
-    role: "USER" | "ADMIN";
-  };
+  author: PublicAuthor;
+  isMine: boolean;
   _count: {
     comments: number;
   };
@@ -25,10 +30,9 @@ export type BoardComment = {
   depth: number;
   commentLikeCount: number;
   isLiked?: boolean;
-  author: {
-    id: string;
-    role: "USER" | "ADMIN";
-  };
+  author: PublicAuthor;
+  isMine: boolean;
+  isPostAuthor: boolean;
   replies: BoardComment[];
 };
 
@@ -43,10 +47,8 @@ export type BoardPostDetail = {
   likeCount: number;
   createdAt: Date | string;
   updatedAt: Date | string;
-  author: {
-    id: string;
-    role: "USER" | "ADMIN";
-  };
+  author: PublicAuthor;
+  isMine: boolean;
   comments: BoardComment[];
 };
 

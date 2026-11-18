@@ -1,9 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import type {
-  BoardPost,
-  CreateBoardPostRequest,
-} from "@/lib/types/BoardData";
+import type { CreateBoardPostRequest } from "@/lib/types/BoardData";
 import { getTodayKST } from "@/lib/utils/kstDate";
 import {
   buildAnonymousViewerKey,
@@ -31,9 +28,7 @@ export async function getBoardPosts(category?: string) {
   });
 }
 
-export type HotBoardPost = BoardPost & { todayViewCount: number };
-
-export async function getHotBoardPosts(limit = 50): Promise<HotBoardPost[]> {
+export async function getHotBoardPosts(limit = 50) {
   const viewedOn = getTodayKST();
 
   const groups = await prisma.boardPostView.groupBy({
@@ -414,6 +409,16 @@ export async function toggleBoardCommentLike(
 
     return { liked: true, commentLikeCount: comment.commentLikeCount };
   });
+}
+
+export async function getBoardPostAuthorId(
+  postId: string,
+): Promise<string | null> {
+  const post = await prisma.boardPost.findUnique({
+    where: { id: postId },
+    select: { authorId: true },
+  });
+  return post?.authorId ?? null;
 }
 
 export async function createBoardComment({

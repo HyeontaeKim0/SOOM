@@ -1,4 +1,5 @@
 import { getPrisma } from "@/lib/prisma";
+import { getDisplayName } from "@/lib/utils/anonymousName";
 import type {
   NotificationItem,
   NotificationType,
@@ -34,8 +35,10 @@ function toNotificationItem(
     commentId: notification.commentId,
     postTitle: notification.comment.post.title,
     commentPreview: notification.comment.content,
-    actorId: notification.actorId,
-    actorRole: notification.actor.role,
+    actorName: getDisplayName({
+      userId: notification.actorId,
+      role: notification.actor.role,
+    }),
     readAt: notification.readAt?.toISOString() ?? null,
     createdAt: notification.createdAt.toISOString(),
   };

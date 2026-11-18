@@ -6,6 +6,7 @@ import CreatePostButton from "@/components/board/createPost/Button";
 import BoardSideFilters from "@/components/board/sideFilters/SideFilters";
 import BoardCard from "@/components/board/boardCard/BoardCard";
 import { getBoardPosts } from "@/lib/services/boardService";
+import { presentBoardPosts } from "@/lib/utils/boardPresenter";
 import type { Metadata } from "next";
 
 export const revalidate = 30;
@@ -26,7 +27,7 @@ export default async function BoardPage({
 }) {
   const { category } = await searchParams;
 
-  const allPosts = await getBoardPosts();
+  const allPosts = presentBoardPosts(await getBoardPosts());
   const filteredPosts = category
     ? allPosts.filter((p) => p.category === category)
     : allPosts;

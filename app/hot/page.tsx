@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Flame } from "lucide-react";
 import BoardCard from "@/components/board/boardCard/BoardCard";
 import { getHotBoardPosts } from "@/lib/services/boardService";
+import { presentBoardPosts } from "@/lib/utils/boardPresenter";
 import type { Metadata } from "next";
 
 export const revalidate = 30;
@@ -15,7 +16,7 @@ export const metadata: Metadata = {
 };
 
 export default async function HotPage() {
-  const hotPosts = await getHotBoardPosts();
+  const hotPosts = presentBoardPosts(await getHotBoardPosts());
 
   return (
     <div className="flex flex-1 bg-[#FBF7F3] font-sans w-full">

@@ -4,9 +4,10 @@ import {
   isBoardPostLikedByUser,
 } from "@/lib/services/boardService";
 import {
-  enrichBoardCommentsWithLikes,
-  type BoardCommentInput,
-} from "@/lib/utils/enrichBoardComments";
+  presentBoardComments,
+  presentBoardPost,
+  type RawBoardComment,
+} from "@/lib/utils/boardPresenter";
 import { auth } from "@/auth";
 import BoardDetailClient from "@/components/board/boardDetail/BoardDetailClient";
 import CommentSection from "@/components/board/boardDetail/CommentSection";
@@ -60,10 +61,14 @@ export default async function BoardDetailPage({
       ])
     : [false, new Set<string>()];
 
-  const comments = enrichBoardCommentsWithLikes(
-    post.comments as BoardCommentInput[],
-    likedCommentIds,
-  );
+  // 브라우저로 내려가기 전에 작성자 식별 값(id, authorId)을 제거하고 표시용 값만 계산한다.
+  const { comments: rawComments, ...rawPost } = post;
+  const comments = presentBoardComments(rawComments as RawBoardComment[], {
+    viewerId: currentUserId,
+    postAuthorId: post.authorId,
+    likedIds: likedCommentIds,
+  });
+  const publicPost = presentBoardPost(rawPost, currentUserId);
 
   return (
     <div className="flex flex-1 bg-[#FBF7F3] font-sans w-full">
@@ -88,7 +93,7 @@ export default async function BoardDetailPage({
 
         {/* 게시글 본문 (인라인 수정 포함) */}
         <BoardDetailClient
-          post={{ ...post, comments }}
+          post={{ ...publicPost, comments }}
           currentUserId={currentUserId}
           isLiked={isLiked}
         />
@@ -99,7 +104,6 @@ export default async function BoardDetailPage({
             postId={post.id}
             comments={comments}
             currentUserId={currentUserId}
-            postAuthorId={post.author.id}
           />
         </div>
       </div>
