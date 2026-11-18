@@ -123,11 +123,18 @@ cp .env.example .env
 | `CLOUDINARY_API_KEY` | Cloudinary API 키 |
 | `CLOUDINARY_API_SECRET` | Cloudinary API 시크릿 |
 
+> **로컬 개발 시 참고**
+> - `.env`는 git에 올라가지 않습니다. 새로 clone하면 위 값을 직접 채워야 합니다 (배포 환경변수는 Vercel 대시보드에 따로 있고, 민감 변수는 값을 다시 볼 수 없습니다).
+> - `DATABASE_URL`·`DIRECT_URL`은 로컬 Docker DB를 쓰고, 운영(Neon) 주소는 넣지 않습니다.
+> - `AUTH_URL`·`NEXT_PUBLIC_SITE_URL`은 로컬에서는 비워 둡니다 (운영 도메인을 넣으면 로그인 후 운영 사이트로 이동합니다).
+> - Google 로그인을 쓰려면 Google Cloud Console의 OAuth 클라이언트에 승인된 리디렉션 URI `http://localhost:3000/api/auth/callback/google`이 등록되어 있어야 합니다.
+> - Cloudinary 세 값은 같은 계정의 값이어야 합니다. 다르면 이미지 업로드가 `cloud_name mismatch`로 실패합니다.
+
 ### 4. DB 마이그레이션 및 시드
 
 ```bash
-npm run db:migrate
-npm run db:seed   # 선택
+npm run db:migrate   # 새 DB에 마이그레이션 적용 (배포 DB에는 db:deploy)
+npm run db:seed      # 선택
 ```
 
 ### 5. 개발 서버 실행
