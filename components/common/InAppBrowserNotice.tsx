@@ -1,30 +1,39 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { getInAppBrowserName, isInAppBrowser } from "@/lib/utils/inAppBrowser";
+import { useState, useSyncExternalStore } from "react";
+import { isInAppBrowser } from "@/lib/utils/inAppBrowser";
 
 const DISMISS_KEY = "soom-in-app-browser-notice-dismissed";
 
+const subscribeNoop = () => () => {};
+
+// 일부 인앱 브라우저·프라이빗 모드에서는 sessionStorage 접근이 예외를 던질 수 있다.
+function readDismissed(): boolean {
+  try {
+    return sessionStorage.getItem(DISMISS_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function writeDismissed() {
+  try {
+    sessionStorage.setItem(DISMISS_KEY, "1");
+  } catch {
+    // 저장에 실패해도 이번 화면에서만 닫히면 충분하다.
+  }
+}
+
 export default function InAppBrowserNotice() {
-  const [visible, setVisible] = useState(false);
-  const [appName, setAppName] = useState<string | null>(null);
+  // 서버/하이드레이션 시에는 false, 클라이언트에서만 UA와 닫힘 여부로 판별
+  const shouldShow = useSyncExternalStore(
+    subscribeNoop,
+    () => isInAppBrowser(navigator.userAgent) && !readDismissed(),
+    () => false,
+  );
+  const [closed, setClosed] = useState(false);
 
-  useEffect(() => {
-    const ua = navigator.userAgent;
-
-    if (!isInAppBrowser(ua)) {
-      return;
-    }
-
-    if (sessionStorage.getItem(DISMISS_KEY) === "1") {
-      return;
-    }
-
-    setAppName(getInAppBrowserName(ua));
-    setVisible(true);
-  }, []);
-
-  if (!visible) {
+  if (!shouldShow || closed) {
     return null;
   }
 
@@ -41,8 +50,8 @@ export default function InAppBrowserNotice() {
         <button
           type="button"
           onClick={() => {
-            sessionStorage.setItem(DISMISS_KEY, "1");
-            setVisible(false);
+            writeDismissed();
+            setClosed(true);
           }}
           className="shrink-0 text-xs text-[#8C8478] hover:text-[#2A241D] transition-colors"
           aria-label="안내 닫기"
