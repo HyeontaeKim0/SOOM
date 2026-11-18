@@ -7,6 +7,22 @@
 
 ---
 
+## 2026-11-18 · 기반: 테스트·CI 도입, lint 에러 정리
+
+- **왜**: 테스트가 없어서 익명성 수정처럼 큰 변경도 수동으로만 확인해야 했고, push 때 자동 검사가 없었다. 프로젝트 전체 lint에는 에러 1건이 있어 CI에 올릴 수 없는 상태였다.
+- **무엇을**
+  - `components/common/InAppBrowserNotice.tsx`: `useEffect` 안 동기 `setState`(lint 에러)를 `useSyncExternalStore`로 교체, `sessionStorage` 접근에 try/catch 추가, 안 쓰는 `appName` 제거. 문구·동작은 그대로.
+  - vitest 도입(`vitest.config.mts`, `npm test`·`test:watch`·`typecheck` 스크립트). 최신 vitest 5는 `@types/node ^22` 이상을 요구해 프로젝트의 `^20`과 충돌해서 **vitest 4**를 사용.
+  - 테스트 43개(DB 없이 검증 가능한 순수 로직): `boardPresenter`(익명성 회귀 방지 포함), `anonymousName`, `inAppBrowser`(삼성 인터넷 오탐 방지 등), `cloudinary` 유틸, `boardPost` 검증
+  - `.github/workflows/ci.yml`: push(main)·PR마다 `npm ci` → lint → typecheck → test (Node 22)
+- **검증**: 로컬에서 lint(에러 0, 경고 13) / typecheck / test 43개 통과 / `npm ci --dry-run` 통과 / YAML 문법 확인. 테스트가 실제로 회귀를 잡는지 확인하려고 `authorId`가 새도록 일부러 깨뜨려 보니 해당 테스트가 실패했고, 원복 후 통과.
+- **남은 일 / 메모**
+  - **GitHub Actions는 push 후에야 실행되므로 아직 실제 실행을 확인하지 못했다.** 첫 실행 결과를 확인할 것.
+  - CI에 `next build`는 넣지 않았다: 목록 페이지가 빌드 시점에 DB를 조회해 DB 없이는 실패한다. 필요하면 CI에 Postgres 서비스를 붙여 추가.
+  - 서비스·API 계층(Prisma 사용)은 아직 테스트가 없다. 이후 작업(신고·검색 등)에서 DB 포함 테스트 방식을 정할 것.
+  - lint 경고 13개는 기존 미사용 변수 등이며 이번에 손대지 않음.
+  - 다음은 쓰기 API 레이트 리밋(글·댓글·업로드)
+
 ## 2026-11-18 · 기반: `.env.example`·README 보강
 
 - **왜**: 새로 clone한 뒤 `.env`가 없어 로그인·DB·이미지 업로드가 순서대로 실패했고, `.env.example`에 Cloudinary 항목이 빠져 있었으며 DB 이름도 docker-compose와 달랐다.
