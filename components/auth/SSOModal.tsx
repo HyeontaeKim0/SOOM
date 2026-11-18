@@ -1,5 +1,6 @@
 "use client";
 
+import { useSyncExternalStore } from "react";
 import { Modal, useOverlayState } from "@heroui/react";
 import type { UseOverlayStateReturn } from "@heroui/react";
 import { signIn } from "next-auth/react";
@@ -11,13 +12,19 @@ import Logo from "@/assets/logo/BetaLogo.png";
 export { useOverlayState };
 export type { UseOverlayStateReturn };
 
+const subscribeNoop = () => () => {};
+
 interface SSOModalProps {
   state: UseOverlayStateReturn;
 }
 
 export default function SSOModal({ state }: SSOModalProps) {
-  const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
-  const inAppBrowser = isInAppBrowser(ua);
+  // 서버/하이드레이션 시에는 false, 클라이언트에서만 UA로 판별
+  const inAppBrowser = useSyncExternalStore(
+    subscribeNoop,
+    () => isInAppBrowser(navigator.userAgent),
+    () => false,
+  );
 
   const handleGoogleSignIn = () => {
     signIn("google", { callbackUrl: "/board" });

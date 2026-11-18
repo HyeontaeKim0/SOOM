@@ -12,7 +12,7 @@ export function isInAppBrowser(userAgent = ""): boolean {
     !/Safari/i.test(userAgent);
 
   const isAndroidWebView =
-    /Android/i.test(userAgent) && /;\s*wv\)|Version\/\d+.*Chrome/i.test(userAgent);
+    /Android/i.test(userAgent) && /;\s*wv\)/i.test(userAgent);
 
   return (
     IN_APP_BROWSER_PATTERN.test(userAgent) || isIosWebView || isAndroidWebView

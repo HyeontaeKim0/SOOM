@@ -5,6 +5,20 @@ import Image from "next/image";
 import { BOARD_POST_IMAGES_MAX } from "@/lib/validation/boardPost";
 import { getOptimizedCloudinaryUrl } from "@/lib/utils/cloudinary";
 
+// 서버(cloudinaryService)의 허용 규칙과 동일하게 유지
+const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+
+function validateImageFile(file: File): string | null {
+  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+    return "JPG, PNG, WEBP 이미지만 업로드할 수 있습니다.";
+  }
+  if (file.size > MAX_IMAGE_BYTES) {
+    return "이미지는 5MB 이하만 업로드할 수 있습니다.";
+  }
+  return null;
+}
+
 type PostImagePickerProps = {
   images: string[];
   onChange: (images: string[]) => void;
@@ -75,7 +89,18 @@ export default function PostImagePicker({
     }
 
     const remainingSlots = BOARD_POST_IMAGES_MAX - totalCount;
-    const filesToUpload = files.slice(0, remainingSlots);
+    const filesToUpload: File[] = [];
+    setUploadError(null);
+
+    for (const file of files.slice(0, remainingSlots)) {
+      const validationError = validateImageFile(file);
+      if (validationError) {
+        setUploadError(validationError);
+        continue;
+      }
+      filesToUpload.push(file);
+    }
+
     const uploadedUrls: string[] = [];
 
     for (const file of filesToUpload) {
@@ -168,7 +193,7 @@ export default function PostImagePicker({
       <input
         ref={inputRef}
         type="file"
-        accept="image/*"
+        accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
         multiple
         className="hidden"
         onChange={handleFileChange}
