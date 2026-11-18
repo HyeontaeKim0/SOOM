@@ -73,7 +73,8 @@ export async function getHotBoardPosts(limit = 50): Promise<HotBoardPost[]> {
   });
 }
 
-const authorSelect = { id: true, name: true, image: true, role: true } as const;
+// 익명 게시판이므로 실명(name)·프로필 사진(image) 등 개인 식별 정보는 조회하지 않는다.
+const authorSelect = { id: true, role: true } as const;
 
 export type BoardPostViewResult = {
   counted: boolean;

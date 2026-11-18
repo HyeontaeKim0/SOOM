@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 
-const authorSelect = { id: true, name: true, image: true, role: true } as const;
+// 익명 게시판이므로 실명(name)·프로필 사진(image) 등 개인 식별 정보는 조회하지 않는다.
+const authorSelect = { id: true, role: true } as const;
 
 export async function getUserBoardPosts(authorId: string) {
   return prisma.boardPost.findMany({

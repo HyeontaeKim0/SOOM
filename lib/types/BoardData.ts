@@ -10,8 +10,6 @@ export type BoardPost = {
   createdAt: Date | string;
   author: {
     id: string;
-    name: string | null;
-    image: string | null;
     role: "USER" | "ADMIN";
   };
   _count: {
@@ -29,8 +27,6 @@ export type BoardComment = {
   isLiked?: boolean;
   author: {
     id: string;
-    name: string | null;
-    image: string | null;
     role: "USER" | "ADMIN";
   };
   replies: BoardComment[];
@@ -49,8 +45,6 @@ export type BoardPostDetail = {
   updatedAt: Date | string;
   author: {
     id: string;
-    name: string | null;
-    image: string | null;
     role: "USER" | "ADMIN";
   };
   comments: BoardComment[];
