@@ -23,7 +23,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const url = await uploadBoardImage(file, session.user.id);
+    const url = await uploadBoardImage(file);
     return NextResponse.json({ url });
   } catch (error) {
     const message =

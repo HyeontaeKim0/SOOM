@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { v2 as cloudinary } from "cloudinary";
 import { getCloudinaryCloudName } from "@/lib/utils/cloudinary";
 
@@ -26,10 +27,7 @@ function ensureCloudinaryConfig() {
   });
 }
 
-export async function uploadBoardImage(
-  file: File,
-  userId: string,
-): Promise<string> {
+export async function uploadBoardImage(file: File): Promise<string> {
   if (!ALLOWED_MIME_TYPES.has(file.type)) {
     throw new Error("JPG, PNG, WEBP 이미지만 업로드할 수 있습니다.");
   }
@@ -47,7 +45,8 @@ export async function uploadBoardImage(
     const upload = cloudinary.uploader.upload_stream(
       {
         folder: "soom/board",
-        public_id: `${userId}-${Date.now()}`,
+        // 익명 게시판: 이미지 URL이 그대로 공개되므로 사용자 id 등 식별 값을 파일명에 넣지 않는다.
+        public_id: randomUUID(),
         resource_type: "image",
         overwrite: false,
       },
