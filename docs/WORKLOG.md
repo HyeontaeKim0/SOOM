@@ -7,6 +7,13 @@
 
 ---
 
+## 2026-11-18 · CI 수정: typecheck가 깨끗한 checkout에서 실패
+
+- **왜**: push 후 GitHub Actions가 실패했다. 로컬에서는 통과했는데, `next-env.d.ts`(PNG 등 이미지 import 타입 선언)가 gitignore라 깨끗하게 checkout한 CI에는 없어 `Cannot find module '*.png'` 타입 에러가 났다. 로컬에는 `next dev`가 만들어 둔 파일이 있어 가려져 있었다.
+- **무엇을**: `typecheck` 스크립트를 `next typegen && tsc --noEmit`으로 변경(로컬·CI가 같은 명령을 사용). 워크플로는 그대로 `npm run typecheck`.
+- **검증**: `git archive HEAD`로 깨끗한 사본을 만들고 CI와 같은 npm 10으로 `npm ci` → lint → typecheck → test를 실행. 수정 전에는 typecheck에서 PNG 모듈 에러 7건으로 실패를 재현했고, 수정 후 모두 통과(exit 0). 실제 GitHub Actions 재실행은 push 후 확인 필요. 실패 로그는 직접 보지 못했고(`gh` 없음) 재현으로 원인을 특정했다.
+- **남은 일 / 메모**: 교훈 — CI 검증은 "내 폴더"가 아니라 깨끗한 checkout에서 해야 한다(gitignore된 생성 파일에 의존하지 않는지).
+
 ## 2026-11-18 · 기반: 테스트·CI 도입, lint 에러 정리
 
 - **왜**: 테스트가 없어서 익명성 수정처럼 큰 변경도 수동으로만 확인해야 했고, push 때 자동 검사가 없었다. 프로젝트 전체 lint에는 에러 1건이 있어 CI에 올릴 수 없는 상태였다.
